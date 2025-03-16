@@ -12,12 +12,19 @@ function addItem() {
     const input = document.getElementById("itemInput");
     const itemText = input.value.trim();
     if (itemText === "") return;
-
+  
+    // ✅ Format timestamp as "MMM-DD"
+    const now = new Date();
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const timestamp = `${monthNames[now.getMonth()]}-${now.getDate().toString().padStart(2, '0')}`;
+   
     const list = document.getElementById("groceryList");
     const li = document.createElement("li");
     
     // ✅ Updated to remove checkboxes and allow clicking the item box for selection
-    li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span> <button onclick='deleteItem(this)'>x</button>`;
+    li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span>
+                    <small style='color: gray; font-size: 12px; margin-right: 10px;'>${timestamp}</small>
+                    <button onclick='deleteItem(this)'>x</button>`;
     list.prepend(li); // Adds new item to the top of the list
     saveItems();
     updateItemCount(); // ✅ Update counter after adding an item
