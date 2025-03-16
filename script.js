@@ -13,15 +13,14 @@ function addItem() {
     const itemText = input.value.trim();
     if (itemText === "") return;
   
-    // ✅ Format timestamp as "MMM-DD"
+    // ✅ Format timestamp dynamically based on calendar day
     const now = new Date();
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const timestamp = `${monthNames[now.getMonth()]}-${now.getDate().toString().padStart(2, '0')}`;
-   
+    const timestamp = formatRelativeDate(now);
+    
     const list = document.getElementById("groceryList");
     const li = document.createElement("li");
     
-    // ✅ Updated to remove checkboxes and allow clicking the item box for selection
+    // ✅ Updated to fix timestamp display & spacing
     li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span>
                     <small style='color: gray; font-size: 12px; margin-right: 10px;'>${timestamp}</small>
                     <button onclick='deleteItem(this)'>x</button>`;
@@ -30,6 +29,18 @@ function addItem() {
     updateItemCount(); // ✅ Update counter after adding an item
 
     input.value = "";
+}
+
+// ✅ New function to format timestamps as "today", "1 day ago", "2 days ago", "1 week ago"
+function formatRelativeDate(date) {
+    const now = new Date();
+    const oneDay = 24 * 60 * 60 * 1000;
+    const diffDays = Math.floor((now - date) / oneDay);
+    
+    if (diffDays === 0) return "Today";
+    if (diffDays === 1) return "1 day ago";
+    if (diffDays < 7) return `${diffDays} days ago`;
+    return "long long ago";
 }
 
 // ✅ New function to toggle selection when clicking an item
