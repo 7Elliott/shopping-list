@@ -16,11 +16,17 @@ function addItem() {
     const list = document.getElementById("groceryList");
     const li = document.createElement("li");
     
-    li.innerHTML = `<input type='checkbox' class='itemCheckbox'style='flex-grow:0'> <span style='margin-left: 4px; flex-grow:1'> ${itemText} </span> <button onclick='deleteItem(this)'>x</button>`;
+// ✅ Updated to remove checkboxes and allow clicking the item box for selection
+    li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span> <button onclick='deleteItem(this)'>x</button>`;
     list.prepend(li); // Adds new item to the top of the list
     saveItems();
 
     input.value = "";
+}
+
+// ✅ New function to toggle selection when clicking an item
+function toggleSelect(span) {
+    span.parentElement.classList.toggle("selected");
 }
 
 function deleteItem(button) {
@@ -28,9 +34,10 @@ function deleteItem(button) {
     saveItems();
 }
 
+// ✅ Updated function to delete selected items based on click selection instead of checkboxes
 function deleteSelected() {
-    document.querySelectorAll(".itemCheckbox:checked").forEach(checkbox => {
-        checkbox.parentElement.remove();
+    document.querySelectorAll(".selected").forEach(selectedItem => {
+        selectedItem.remove();
     });
     saveItems();
 }

@@ -95,6 +95,12 @@ body {
       background: #e0e0e0;
   }
   
+  /* ✅ New style to highlight selected items */
+  .selected {
+      background: #ffcccb !important; /* Light red highlight for selected items */
+      border-color: #d9534f;
+  }
+  
   .button-group {
       display: flex;
       flex-direction: column;
