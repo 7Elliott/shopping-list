@@ -28,6 +28,7 @@ function addItem() {
     list.prepend(li); // Adds new item to the top of the list
     saveItems();
     updateItemCount(); // ✅ Update counter after adding an item
+    updateButtonsVisibility(); // ✅ Update button visibility
 
     input.value = "";
 }
@@ -47,6 +48,7 @@ function formatRelativeDate(date) {
 // ✅ New function to toggle selection when clicking an item
 function toggleSelect(span) {
     span.parentElement.classList.toggle("selected");
+    updateButtonsVisibility(); // ✅ Update button visibility when selecting items
 }
 
 function deleteItem(button) {
@@ -56,6 +58,7 @@ function deleteItem(button) {
         li.remove();
         saveItems();
         updateItemCount(); // ✅ Update counter after deleting an item
+        updateButtonsVisibility(); // ✅ Update button visibility
     }, 300); // ✅ Matches CSS transition duration
 }
 
@@ -67,6 +70,7 @@ function deleteSelected() {
             selectedItem.remove();
             saveItems();
             updateItemCount(); // ✅ Update counter after deleting selected items
+            updateButtonsVisibility(); // ✅ Update button visibility
         }, 300); // ✅ Matches CSS transition duration
     });
 }
@@ -79,6 +83,7 @@ function deleteAll() {
         document.getElementById("groceryList").innerHTML = "";
         saveItems();
         updateItemCount(); // ✅ Update counter after deleting all items
+        updateButtonsVisibility(); // ✅ Update button visibility
     }, 300); // ✅ Matches CSS transition duration
 }
 
@@ -101,10 +106,30 @@ function loadItems() {
         list.appendChild(li);
     });
     updateItemCount(); // ✅ Update counter after loading saved items
+    updateButtonsVisibility(); // ✅ Update button visibility
 }
 
 // ✅ New function to update the item count dynamically
 function updateItemCount() {
     const count = document.querySelectorAll("#groceryList li").length;
     document.getElementById("itemCount").textContent = `Items: ${count}`;
+}
+
+// ✅ New function to update button visibility
+function updateButtonsVisibility() {
+    const deleteSelectedBtn = document.getElementById("deleteSelected");
+    const deleteAllBtn = document.getElementById("deleteAll");
+    const selectedCount = document.querySelectorAll(".selected").length;
+    const totalItems = document.querySelectorAll("#groceryList li").length;
+    
+    // Show or hide "Delete Selected" button
+    if (selectedCount > 0) {
+        deleteSelectedBtn.style.display = "block";
+        deleteSelectedBtn.textContent = `Delete Selected (${selectedCount})`;
+    } else {
+        deleteSelectedBtn.style.display = "none";
+    }
+    
+    // Show or hide "Delete All" button
+    deleteAllBtn.style.display = totalItems > 0 ? "block" : "none";
 }
