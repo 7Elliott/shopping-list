@@ -17,7 +17,7 @@ function addItem() {
     const li = document.createElement("li");
     
     li.innerHTML = `<input type='checkbox' class='itemCheckbox'style='flex-grow:0'> <span style='margin-left: 4px; flex-grow:1'> ${itemText} </span> <button onclick='deleteItem(this)'>x</button>`;
-    list.appendChild(li);
+    list.prepend(li); // Adds new item to the top of the list
     saveItems();
 
     input.value = "";
@@ -51,7 +51,8 @@ function saveItems() {
 function loadItems() {
     const savedItems = JSON.parse(localStorage.getItem("groceryItems")) || [];
     const list = document.getElementById("groceryList");
-    savedItems.forEach(itemHTML => {
+  
+    savedItems.reverse().forEach(itemHTML => {
         const li = document.createElement("li");
         li.innerHTML = itemHTML;
         list.appendChild(li);
