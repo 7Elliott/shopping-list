@@ -16,7 +16,7 @@ function addItem() {
     const list = document.getElementById("groceryList");
     const li = document.createElement("li");
     
-    li.innerHTML = `<input type='checkbox' class='itemCheckbox' style='flex-grow:0'> <span style='flex-grow:1'> ${itemText} </span> <button onclick='deleteItem(this)'>x</button>`;
+    li.innerHTML = `<input type='checkbox' class='itemCheckbox'style='flex-grow:0'> <span style='margin-left: 4px; flex-grow:1'> ${itemText} </span> <button onclick='deleteItem(this)'>x</button>`;
     list.appendChild(li);
     saveItems();
 
@@ -32,6 +32,11 @@ function deleteSelected() {
     document.querySelectorAll(".itemCheckbox:checked").forEach(checkbox => {
         checkbox.parentElement.remove();
     });
+    saveItems();
+}
+
+function deleteAll() {
+    document.getElementById("groceryList").innerHTML = "";
     saveItems();
 }
 
