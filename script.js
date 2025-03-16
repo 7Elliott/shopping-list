@@ -16,10 +16,11 @@ function addItem() {
     const list = document.getElementById("groceryList");
     const li = document.createElement("li");
     
-// ✅ Updated to remove checkboxes and allow clicking the item box for selection
+    // ✅ Updated to remove checkboxes and allow clicking the item box for selection
     li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span> <button onclick='deleteItem(this)'>x</button>`;
     list.prepend(li); // Adds new item to the top of the list
     saveItems();
+    updateItemCount(); // ✅ Update counter after adding an item
 
     input.value = "";
 }
@@ -32,6 +33,7 @@ function toggleSelect(span) {
 function deleteItem(button) {
     button.parentElement.remove();
     saveItems();
+    updateItemCount(); // ✅ Update counter after deleting an item
 }
 
 // ✅ Updated function to delete selected items based on click selection instead of checkboxes
@@ -40,11 +42,13 @@ function deleteSelected() {
         selectedItem.remove();
     });
     saveItems();
+    updateItemCount(); // ✅ Update counter after deleting selected items
 }
 
 function deleteAll() {
     document.getElementById("groceryList").innerHTML = "";
     saveItems();
+  updateItemCount(); // ✅ Update counter after deleting all items
 }
 
 function saveItems() {
@@ -64,4 +68,11 @@ function loadItems() {
         li.innerHTML = itemHTML;
         list.appendChild(li);
     });
+  updateItemCount(); // ✅ Update counter after loading saved items
+}
+
+// ✅ New function to update the item count dynamically
+function updateItemCount() {
+    const count = document.querySelectorAll("#groceryList li").length;
+    document.getElementById("itemCount").textContent = `Items: ${count}`;
 }
