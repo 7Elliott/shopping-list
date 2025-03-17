@@ -18,15 +18,10 @@ class ShoppingList {
     }
 
     async addItem(name, userName) {
-        const { data, error } = await this.client.from(this.databaseName).insert({
+        return await this.client.from(this.databaseName).insert({
             name,
             user_name: userName
-        })
-        if (!error) {
-            return data
-        } else {
-            throw error
-        }
+        }).select()
     }
 
     async deleteItem(id) {

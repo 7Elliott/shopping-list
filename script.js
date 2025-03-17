@@ -47,31 +47,19 @@ function addItem() {
         localStorage.setItem("userName", userName);
     }
 
-    // ✅ Format timestamp dynamically based on calendar day
-    const now = new Date();
-    const timestamp = formatRelativeDate(now);
 
     const list = document.getElementById("groceryList");
-    const li = document.createElement("li");
-
-    // ✅ Updated to move username under timestamp & style it small
-    li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span>
-                    <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
-                        <small style='color: gray; font-size: 12px;'>${timestamp}</small>
-                        <small style='color: gray; font-size: 10px; font-style: italic;'>Added by ${userName}</small>
-                    </div>
-                    <button onclick='deleteItem(this)'>x</button>`;
-    list.prepend(li); // Adds new item to the top of the list
-    shoppingList.addItem(itemText, userName).catch(err => {
-        console.log('failed to insert item', err)
+    shoppingList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
+        if (error) {
+            alert("Could not insert item. Please try again?")
+        } else {
+            const li = makeItemElement(id, name, created_at, userName)
+            list.prepend(li); // Adds new item to the top of the list
+            onItemChangesCompleted()
+            input.value = "";
+        }
     })
-    saveItems();
-    updateItemCount(); // ✅ Update counter after adding an item
-    updateButtonsVisibility(); // ✅ Update button visibility
-
-    input.value = "";
 }
-
 
 // ✅ New function to format timestamps as "today", "1 day ago", "2 days ago", "1 week ago"
 function formatRelativeDate(date) {
@@ -86,46 +74,50 @@ function formatRelativeDate(date) {
 }
 
 // ✅ New function to toggle selection when clicking an item
-function toggleSelect(span) {
-    span.parentElement.classList.toggle("selected");
+function toggleSelect(elem) {
+    elem.classList.toggle("selected");
     updateButtonsVisibility(); // ✅ Update button visibility when selecting items
 }
 
-function deleteItem(button) {
-    console.log('button.parentElement.data-id', button.parentElement.dataset.id)
-    const li = button.parentElement;
-    li.classList.add("slide-out"); // ✅ Apply CSS class for transition
+function onItemChangesCompleted() {
+    updateItemCount(); // ✅ Update counter after items have changed
+    updateButtonsVisibility(); // ✅ Update button visibility
+}
+
+function updateUIOnItemDelete(item) {
+    item.classList.add("slide-out"); // ✅ Apply CSS class for transition
     setTimeout(() => {
-        li.remove();
-        saveItems();
-        updateItemCount(); // ✅ Update counter after deleting an item
-        updateButtonsVisibility(); // ✅ Update button visibility
-    }, 300); // ✅ Matches CSS transition duration
+        item.remove()
+        onItemChangesCompleted()
+    }, 300)
+}
+
+function onDeleteButtonPressed(button) {
+    const li = button.parentElement
+    deleteItem(li)
+}
+
+function deleteItem(li) {
+    shoppingList.deleteItem(li.dataset.id).then(({ error }) => {
+        if (error) {
+            alert("failed to delete item")
+            return
+        }
+        updateUIOnItemDelete(li)
+    })
 }
 
 // ✅ Updated function to delete selected items based on click selection instead of checkboxes
 function deleteSelected() {
     document.querySelectorAll(".selected").forEach(selectedItem => {
-        selectedItem.classList.add("slide-out"); // ✅ Apply CSS class for transition
-        setTimeout(() => {
-            selectedItem.remove();
-            saveItems();
-            updateItemCount(); // ✅ Update counter after deleting selected items
-            updateButtonsVisibility(); // ✅ Update button visibility
-        }, 300); // ✅ Matches CSS transition duration
+        deleteItem(selectedItem)
     });
 }
 
 function deleteAll() {
     document.querySelectorAll("#groceryList li").forEach(li => {
-        li.classList.add("slide-out"); // ✅ Apply CSS class for transition
+        deleteItem(li)
     });
-    setTimeout(() => {
-        document.getElementById("groceryList").innerHTML = "";
-        saveItems();
-        updateItemCount(); // ✅ Update counter after deleting all items
-        updateButtonsVisibility(); // ✅ Update button visibility
-    }, 300); // ✅ Matches CSS transition duration
 }
 
 function saveItems() {
@@ -136,18 +128,32 @@ function saveItems() {
     localStorage.setItem("groceryItems", JSON.stringify(items));
 }
 
+function makeItemElement(id, name, created_at, userName) {
+    const li = document.createElement("li");
+    const timestamp = formatRelativeDate(Date.parse(created_at));
+
+    li.onclick = () => toggleSelect(li)
+
+    // ✅ Updated to move username under timestamp & style it small
+    li.innerHTML = `<span style='flex-grow:1'> ${name} </span>
+                    <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
+                        <small style='color: gray; font-size: 12px;'>${timestamp}</small>
+                        <small style='color: gray; font-size: 10px; font-style: italic;'>Added by ${userName}</small>
+                    </div>
+                    <button onclick='onDeleteButtonPressed(this)'>x</button>`;
+    li.setAttribute('data-id', id)
+    return li
+}
+
 async function loadItems() {
     const savedItems = await shoppingList.fetch()
     const list = document.getElementById("groceryList");
 
-    savedItems.sort(({ created_at: a }, { created_at: b }) => b > a).forEach(({ id, name }) => {
-        const li = document.createElement("li");
-        li.setAttribute('data-id', id)
-        li.innerHTML = `<input type='checkbox' class='itemCheckbox'style='flex-grow:0'> <span style='margin-left: 4px; flex-grow:1'> ${name} </span> <button onclick='deleteItem(this)'>x</button>`;
+    savedItems.sort(({ created_at: a }, { created_at: b }) => b > a).forEach(({ id, name, created_at, user_name }) => {
+        const li = makeItemElement(id, name, created_at, user_name)
         list.appendChild(li);
     });
-    updateItemCount(); // ✅ Update counter after loading saved items
-    updateButtonsVisibility(); // ✅ Update button visibility
+    onItemChangesCompleted()
 }
 
 // ✅ New function to update the item count dynamically
