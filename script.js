@@ -14,6 +14,13 @@ function addItem() {
     const itemText = input.value.trim();
     if (itemText === "") return;
 
+    let userName = localStorage.getItem("userName");
+    if (!userName) {
+        userName = prompt("Enter your name:");
+        if (!userName) return; // Exit if no name is provided
+        localStorage.setItem("userName", userName);
+    }
+
     // ✅ Format timestamp dynamically based on calendar day
     const now = new Date();
     const timestamp = formatRelativeDate(now);
@@ -21,9 +28,12 @@ function addItem() {
     const list = document.getElementById("groceryList");
     const li = document.createElement("li");
     
-    // ✅ Updated to fix timestamp display & spacing
+    // ✅ Updated to move username under timestamp & style it small
     li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span>
-                    <small style='color: gray; font-size: 12px; margin-right: 10px;'>${timestamp}</small>
+                    <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
+                        <small style='color: gray; font-size: 12px;'>${timestamp}</small>
+                        <small style='color: gray; font-size: 10px; font-style: italic;'>Added by ${userName}</small>
+                    </div>
                     <button onclick='deleteItem(this)'>x</button>`;
     list.prepend(li); // Adds new item to the top of the list
     saveItems();
@@ -32,6 +42,7 @@ function addItem() {
 
     input.value = "";
 }
+
 
 // ✅ New function to format timestamps as "today", "1 day ago", "2 days ago", "1 week ago"
 function formatRelativeDate(date) {
