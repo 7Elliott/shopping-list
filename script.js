@@ -1,8 +1,34 @@
+let shoppingList = null
+const auth = new Auth()
 // script.js
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    {
+        let email = null, password = null
+        while (true) {
+            const loggedIn = await auth.loggedIn()
+            if (loggedIn) {
+                break
+            }
+            if (!email) {
+                email = prompt("email: ")
+            }
+            if (!password) {
+                password = prompt("password: ")
+            }
+            if (email && password) {
+                const { data, error } = await auth.signIn(email, password)
+                if (!error) {
+                    break
+                } else {
+                    console.log('sign in error', error)
+                    alert("failed to log in. Please try again.")
+                }
+            }
+        }
+    }
+    shoppingList = new ShoppingList(auth.getClient())
     loadItems();
-    document.getElementById("itemInput").addEventListener("keypress", function(event) {
+    document.getElementById("itemInput").addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
             addItem();
         }
@@ -24,10 +50,10 @@ function addItem() {
     // ✅ Format timestamp dynamically based on calendar day
     const now = new Date();
     const timestamp = formatRelativeDate(now);
-    
+
     const list = document.getElementById("groceryList");
     const li = document.createElement("li");
-    
+
     // ✅ Updated to move username under timestamp & style it small
     li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span>
                     <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
@@ -36,6 +62,9 @@ function addItem() {
                     </div>
                     <button onclick='deleteItem(this)'>x</button>`;
     list.prepend(li); // Adds new item to the top of the list
+    shoppingList.addItem(itemText, userName).catch(err => {
+        console.log('failed to insert item', err)
+    })
     saveItems();
     updateItemCount(); // ✅ Update counter after adding an item
     updateButtonsVisibility(); // ✅ Update button visibility
@@ -49,7 +78,7 @@ function formatRelativeDate(date) {
     const now = new Date();
     const oneDay = 24 * 60 * 60 * 1000;
     const diffDays = Math.floor((now - date) / oneDay);
-    
+
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "1 day ago";
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -63,6 +92,7 @@ function toggleSelect(span) {
 }
 
 function deleteItem(button) {
+    console.log('button.parentElement.data-id', button.parentElement.dataset.id)
     const li = button.parentElement;
     li.classList.add("slide-out"); // ✅ Apply CSS class for transition
     setTimeout(() => {
@@ -100,20 +130,20 @@ function deleteAll() {
 
 function saveItems() {
     const items = [];
-    document.querySelectorAll("#groceryList li").forEach(li => {
-        items.push(li.innerHTML);
+    document.querySelectorAll("#groceryList li span").forEach(li => {
+        items.push(li.innerText);
     });
     localStorage.setItem("groceryItems", JSON.stringify(items));
 }
 
-function loadItems() {
-    const savedItems = JSON.parse(localStorage.getItem("groceryItems")) || [];
+async function loadItems() {
+    const savedItems = await shoppingList.fetch()
     const list = document.getElementById("groceryList");
-    
-    // ✅ Ensures the latest saved items appear on top
-    savedItems.reverse().forEach(itemHTML => {
+
+    savedItems.sort(({ created_at: a }, { created_at: b }) => b > a).forEach(({ id, name }) => {
         const li = document.createElement("li");
-        li.innerHTML = itemHTML;
+        li.setAttribute('data-id', id)
+        li.innerHTML = `<input type='checkbox' class='itemCheckbox'style='flex-grow:0'> <span style='margin-left: 4px; flex-grow:1'> ${name} </span> <button onclick='deleteItem(this)'>x</button>`;
         list.appendChild(li);
     });
     updateItemCount(); // ✅ Update counter after loading saved items
@@ -132,7 +162,7 @@ function updateButtonsVisibility() {
     const deleteAllBtn = document.getElementById("deleteAll");
     const selectedCount = document.querySelectorAll(".selected").length;
     const totalItems = document.querySelectorAll("#groceryList li").length;
-    
+
     // Show or hide "Delete Selected" button
     if (selectedCount > 0) {
         deleteSelectedBtn.style.display = "block";
@@ -140,7 +170,7 @@ function updateButtonsVisibility() {
     } else {
         deleteSelectedBtn.style.display = "none";
     }
-    
+
     // Show or hide "Delete All" button
     deleteAllBtn.style.display = totalItems > 0 ? "block" : "none";
 }
