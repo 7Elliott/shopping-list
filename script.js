@@ -1,8 +1,34 @@
+let shoppingList = null
+const auth = new Auth()
 // script.js
-
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    {
+        let email = null, password = null
+        while (true) {
+            const loggedIn = await auth.loggedIn()
+            if (loggedIn) {
+                break
+            }
+            if (!email) {
+                email = prompt("email: ")
+            }
+            if (!password) {
+                password = prompt("password: ")
+            }
+            if (email && password) {
+                const { data, error } = await auth.signIn(email, password)
+                if (!error) {
+                    break
+                } else {
+                    console.log('sign in error', error)
+                    alert("failed to log in. Please try again.")
+                }
+            }
+        }
+    }
+    shoppingList = new ShoppingList(auth.getClient())
     loadItems();
-    document.getElementById("itemInput").addEventListener("keypress", function(event) {
+    document.getElementById("itemInput").addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
             addItem();
         }
@@ -21,35 +47,26 @@ function addItem() {
         localStorage.setItem("userName", userName);
     }
 
-    // ✅ Format timestamp dynamically based on calendar day
-    const now = new Date();
-    const timestamp = formatRelativeDate(now);
-    
+
     const list = document.getElementById("groceryList");
-    const li = document.createElement("li");
-    
-    // ✅ Updated to move username under timestamp & style it small
-    li.innerHTML = `<span style='flex-grow:1' onclick='toggleSelect(this)'> ${itemText} </span>
-                    <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
-                        <small style='color: gray; font-size: 12px;'>${timestamp}</small>
-                        <small style='color: gray; font-size: 10px; font-style: italic;'>Added by ${userName}</small>
-                    </div>
-                    <button onclick='deleteItem(this)'>x</button>`;
-    list.prepend(li); // Adds new item to the top of the list
-    saveItems();
-    updateItemCount(); // ✅ Update counter after adding an item
-    updateButtonsVisibility(); // ✅ Update button visibility
-
-    input.value = "";
+    shoppingList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
+        if (error) {
+            alert("Could not insert item. Please try again?")
+        } else {
+            const li = makeItemElement(id, name, created_at, userName)
+            list.prepend(li); // Adds new item to the top of the list
+            onItemChangesCompleted()
+            input.value = "";
+        }
+    })
 }
-
 
 // ✅ New function to format timestamps as "today", "1 day ago", "2 days ago", "1 week ago"
 function formatRelativeDate(date) {
     const now = new Date();
     const oneDay = 24 * 60 * 60 * 1000;
     const diffDays = Math.floor((now - date) / oneDay);
-    
+
     if (diffDays === 0) return "Today";
     if (diffDays === 1) return "1 day ago";
     if (diffDays < 7) return `${diffDays} days ago`;
@@ -57,67 +74,86 @@ function formatRelativeDate(date) {
 }
 
 // ✅ New function to toggle selection when clicking an item
-function toggleSelect(span) {
-    span.parentElement.classList.toggle("selected");
+function toggleSelect(elem) {
+    elem.classList.toggle("selected");
     updateButtonsVisibility(); // ✅ Update button visibility when selecting items
 }
 
-function deleteItem(button) {
-    const li = button.parentElement;
-    li.classList.add("slide-out"); // ✅ Apply CSS class for transition
+function onItemChangesCompleted() {
+    updateItemCount(); // ✅ Update counter after items have changed
+    updateButtonsVisibility(); // ✅ Update button visibility
+}
+
+function updateUIOnItemDelete(item) {
+    item.classList.add("slide-out"); // ✅ Apply CSS class for transition
     setTimeout(() => {
-        li.remove();
-        saveItems();
-        updateItemCount(); // ✅ Update counter after deleting an item
-        updateButtonsVisibility(); // ✅ Update button visibility
-    }, 300); // ✅ Matches CSS transition duration
+        item.remove()
+        onItemChangesCompleted()
+    }, 300)
+}
+
+function onDeleteButtonPressed(button) {
+    const li = button.parentElement
+    deleteItem(li)
+}
+
+function deleteItem(li) {
+    shoppingList.deleteItem(li.dataset.id).then(({ error }) => {
+        if (error) {
+            alert("failed to delete item")
+            return
+        }
+        updateUIOnItemDelete(li)
+    })
 }
 
 // ✅ Updated function to delete selected items based on click selection instead of checkboxes
 function deleteSelected() {
     document.querySelectorAll(".selected").forEach(selectedItem => {
-        selectedItem.classList.add("slide-out"); // ✅ Apply CSS class for transition
-        setTimeout(() => {
-            selectedItem.remove();
-            saveItems();
-            updateItemCount(); // ✅ Update counter after deleting selected items
-            updateButtonsVisibility(); // ✅ Update button visibility
-        }, 300); // ✅ Matches CSS transition duration
+        deleteItem(selectedItem)
     });
 }
 
 function deleteAll() {
     document.querySelectorAll("#groceryList li").forEach(li => {
-        li.classList.add("slide-out"); // ✅ Apply CSS class for transition
+        deleteItem(li)
     });
-    setTimeout(() => {
-        document.getElementById("groceryList").innerHTML = "";
-        saveItems();
-        updateItemCount(); // ✅ Update counter after deleting all items
-        updateButtonsVisibility(); // ✅ Update button visibility
-    }, 300); // ✅ Matches CSS transition duration
 }
 
 function saveItems() {
     const items = [];
-    document.querySelectorAll("#groceryList li").forEach(li => {
-        items.push(li.innerHTML);
+    document.querySelectorAll("#groceryList li span").forEach(li => {
+        items.push(li.innerText);
     });
     localStorage.setItem("groceryItems", JSON.stringify(items));
 }
 
-function loadItems() {
-    const savedItems = JSON.parse(localStorage.getItem("groceryItems")) || [];
+function makeItemElement(id, name, created_at, userName) {
+    const li = document.createElement("li");
+    const timestamp = formatRelativeDate(Date.parse(created_at));
+
+    li.onclick = () => toggleSelect(li)
+
+    // ✅ Updated to move username under timestamp & style it small
+    li.innerHTML = `<span style='flex-grow:1'> ${name} </span>
+                    <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
+                        <small style='color: gray; font-size: 12px;'>${timestamp}</small>
+                        <small style='color: gray; font-size: 10px; font-style: italic;'>Added by ${userName}</small>
+                    </div>
+                    <button onclick='onDeleteButtonPressed(this)'>x</button>`;
+    li.setAttribute('data-id', id)
+    return li
+}
+
+async function loadItems() {
+    const savedItems = await shoppingList.fetch()
     const list = document.getElementById("groceryList");
-    
-    // ✅ Ensures the latest saved items appear on top
-    savedItems.reverse().forEach(itemHTML => {
-        const li = document.createElement("li");
-        li.innerHTML = itemHTML;
+
+    savedItems.sort(({ created_at: a }, { created_at: b }) => b > a).forEach(({ id, name, created_at, user_name }) => {
+        const li = makeItemElement(id, name, created_at, user_name)
         list.appendChild(li);
     });
-    updateItemCount(); // ✅ Update counter after loading saved items
-    updateButtonsVisibility(); // ✅ Update button visibility
+    onItemChangesCompleted()
 }
 
 // ✅ New function to update the item count dynamically
@@ -132,7 +168,7 @@ function updateButtonsVisibility() {
     const deleteAllBtn = document.getElementById("deleteAll");
     const selectedCount = document.querySelectorAll(".selected").length;
     const totalItems = document.querySelectorAll("#groceryList li").length;
-    
+
     // Show or hide "Delete Selected" button
     if (selectedCount > 0) {
         deleteSelectedBtn.style.display = "block";
@@ -140,7 +176,7 @@ function updateButtonsVisibility() {
     } else {
         deleteSelectedBtn.style.display = "none";
     }
-    
+
     // Show or hide "Delete All" button
     deleteAllBtn.style.display = totalItems > 0 ? "block" : "none";
 }
