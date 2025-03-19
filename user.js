@@ -6,7 +6,7 @@ class Auth {
 
     async loggedIn() {
         const { data, error } = await this.client.auth.getSession()
-        if (error) {
+        if (error || !(data?.session)) {
             console.log('failed to get signed in session: ', error)
             return false
         }
