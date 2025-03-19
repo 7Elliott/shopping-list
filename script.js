@@ -21,7 +21,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     break
                 } else {
                     console.log('sign in error', error)
-                    alert("failed to log in. Please try again.")
+                    alert("failed to log in. Please refresh and try again.")
+                    break
                 }
             }
         }
