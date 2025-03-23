@@ -1,31 +1,38 @@
 let shoppingList = null
 const auth = new Auth()
-// script.js
-document.addEventListener("DOMContentLoaded", async () => {
-    {
-        let email = null, password = null
-        while (true) {
-            const loggedIn = await auth.loggedIn()
-            if (loggedIn) {
+
+async function loopUntilLoggedIn() {
+    let email = null, password = null
+    while (true) {
+        const loggedIn = await auth.loggedIn()
+        if (loggedIn) {
+            break
+        }
+        if (!email) {
+            email = prompt("email: ")
+        }
+        if (!password) {
+            password = prompt("password: ")
+        }
+        if (email && password) {
+            const { data, error } = await auth.signIn(email, password)
+            if (!error) {
                 break
-            }
-            if (!email) {
-                email = prompt("email: ")
-            }
-            if (!password) {
-                password = prompt("password: ")
-            }
-            if (email && password) {
-                const { data, error } = await auth.signIn(email, password)
-                if (!error) {
-                    break
-                } else {
-                    console.log('sign in error', error)
-                    alert("failed to log in. Please refresh and try again.")
-                    break
-                }
+            } else {
+                return error
             }
         }
+    }
+}
+
+// script.js
+document.addEventListener("DOMContentLoaded", async () => {
+    const error = await loopUntilLoggedIn()
+    if (error) {
+        console.log('sign in error', error)
+        alert(`Failed to log in: ${error.message}`)
+        window.location.reload()
+        return
     }
     shoppingList = new ShoppingList(auth.getClient())
     loadItems();
