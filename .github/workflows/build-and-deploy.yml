@@ -3,7 +3,7 @@ name: Build and Deploy App-1 to GitHub Pages
 on:
   push:
     branches:
-      - master # Adjust this to your primary branch
+      - main # Adjust this to your primary branch
 
 jobs:
   build-and-deploy:
