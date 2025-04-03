@@ -120,10 +120,10 @@ function makeItemElement(id, name, created_at, userName) {
     // ✅ Updated to move username under timestamp & style it small
     li.innerHTML = `<span style='flex-grow:1'> ${name} </span>
                     <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
-                        <small style='color: gray; font-size: 12px;'>${timestamp}</small>
-                        <small style='color: gray; font-size: 10px; font-style: italic;'>Added by ${userName}</small>
+                        <small style='color: gray; font-size: 16px;'>${timestamp}</small>
+                        <small style='color: gray; font-size: 12px; font-style: italic;'>Added by ${userName}</small>
                     </div>
-                    <button onclick='onDeleteButtonPressed(this)'>x</button>`;
+                    <button class="deleteButton" onclick='onDeleteButtonPressed(this)'><img src='delete.svg' /></button>`;
     li.setAttribute('data-id', id)
     return li
 }
@@ -154,8 +154,8 @@ function updateButtonsVisibility() {
 
     // Show or hide "Delete Selected" button
     if (selectedCount > 0) {
-        deleteSelectedBtn.style.display = "block";
-        deleteSelectedBtn.textContent = `Delete Selected (${selectedCount})`;
+        deleteSelectedBtn.style.display = "flex";
+        deleteSelectedBtn.querySelector('#deleteSelectedCount').textContent = ` (${selectedCount})`
     } else {
         deleteSelectedBtn.style.display = "none";
     }

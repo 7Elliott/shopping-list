@@ -16,7 +16,8 @@ body {
     align-items: center;
     height: 100vh;
     margin: 0;
-    overflow: hidden; /* Prevents scrolling on the entire page */
+    overflow: hidden;
+    /* Prevents scrolling on the entire page */
 }
 
 .container {
@@ -26,7 +27,8 @@ body {
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     width: 320px;
     text-align: center;
-    overflow: hidden; /* Prevents scrolling inside the container */
+    overflow: hidden;
+    /* Prevents scrolling inside the container */
 }
 
 h1 {
@@ -46,7 +48,8 @@ h1 {
     flex-direction: column;
 }
 
-input, li span {
+input,
+li span {
     font-family: 'Mynerve', 'Graffiti', sans-serif;
     font-size: 20px;
 }
@@ -59,7 +62,8 @@ input {
     background: #f9f9f9;
 }
 
-button, .button {
+button,
+.button {
     background: #333;
     color: white;
     border: none;
@@ -82,11 +86,13 @@ ul {
     text-align: left;
     max-height: 200px;
     overflow-y: auto;
-    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    scrollbar-width: none;
+    /* Hide scrollbar for Firefox */
 }
 
 ul::-webkit-scrollbar {
-    display: none; /* Hide scrollbar for Chrome, Safari */
+    display: none;
+    /* Hide scrollbar for Chrome, Safari */
 }
 
 li {
@@ -110,7 +116,8 @@ li:hover {
 }
 
 .selected {
-    background: #ffcccb !important; /* Light red highlight for selected items */
+    background: #ffcccb !important;
+    /* Light red highlight for selected items */
     border-color: #d9534f;
 }
 
@@ -128,7 +135,8 @@ li:hover {
     margin-top: 10px;
 }
 
-#deleteSelected, #deleteAll {
+#deleteSelected,
+#deleteAll {
     margin-top: 10px;
     width: 100%;
     background: #d9534f;
@@ -142,6 +150,49 @@ li:hover {
     background: #b52b27;
 }
 
+#deleteAll,
+#deleteSelected,
+#deleteSelected>span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#deleteSelected>span {
+    line-height: 24px;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+#deleteAll>img,
+#deleteSelected>img,
+#deleteSelected>span {
+    height: 24px;
+    max-width: 100%;
+    display: inline-block;
+}
+
 #deleteAll:hover {
     background: #a02622;
+}
+
+.hidden {
+    display: none;
+}
+
+#itemInput+button,
+.deleteButton {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+}
+
+.deleteButton {
+    background-color: #777;
+}
+
+#itemInput+button>img,
+.deleteButton>img {
+    height: 12px;
+    max-width: 100%;
 }
