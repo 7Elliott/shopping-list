@@ -3,7 +3,7 @@ const auth = new Auth()
 
 async function redirectIfNotLoggedIn() {
     const loggedIn = await auth.loggedIn()
-    if (!loggedIn) window.location.pathname = '/login.html'
+    if (!loggedIn) window.location.pathname = '/shopping-list/login.html'
 }
 
 // script.js

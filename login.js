@@ -11,7 +11,7 @@ async function handleLoginSubmit(e) {
         alert('Failed to login. Check your username / password, or try again.')
         return
     }
-    window.location.pathname = '/'
+    window.location.pathname = '/shopping-list'
     return
 }
 
