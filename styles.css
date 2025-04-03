@@ -33,6 +33,11 @@ h1 {
     margin-bottom: 15px;
 }
 
+.flex-column {
+    display: flex;
+    flex-direction: column;
+}
+
 input, li span {
     font-family: 'Mynerve', sans-serif;
     font-size: 16px;
@@ -47,7 +52,7 @@ input {
     background: #f9f9f9;
 }
 
-button {
+button, .button {
     background: #333;
     color: white;
     border: none;
