@@ -1,9 +1,13 @@
 let shoppingList = null
 const auth = new Auth()
 
+function redirectToLogin() {
+    window.location.pathname = '/shopping-list/login.html'
+}
+
 async function redirectIfNotLoggedIn() {
     const loggedIn = await auth.loggedIn()
-    if (!loggedIn) window.location.pathname = '/shopping-list/login.html'
+    if (!loggedIn) redirectToLogin()
 }
 
 // script.js
@@ -25,11 +29,9 @@ function addItem() {
 
     let userName = localStorage.getItem("userName");
     if (!userName) {
-        userName = prompt("Enter your name:");
-        if (!userName) return; // Exit if no name is provided
-        localStorage.setItem("userName", userName);
+        // login page also sets username. redirect back to login
+        redirectToLogin();
     }
-
 
     const list = document.getElementById("groceryList");
     shoppingList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
