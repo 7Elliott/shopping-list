@@ -1,6 +1,14 @@
 /* styles.css */
+
+@font-face {
+    font-family: 'Graffiti';
+    src: url('/Graffiti.ttf') format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
-    font-family: 'Mynerve', sans-serif;
+    font-family: 'Mynerve', 'Graffiti', sans-serif;
     background: url('Shopping List Background.png') no-repeat center center fixed;
     background-size: cover;
     display: flex;
@@ -39,8 +47,8 @@ h1 {
 }
 
 input, li span {
-    font-family: 'Mynerve', sans-serif;
-    font-size: 16px;
+    font-family: 'Mynerve', 'Graffiti', sans-serif;
+    font-size: 20px;
 }
 
 input {
@@ -48,7 +56,6 @@ input {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 14px;
     background: #f9f9f9;
 }
 
