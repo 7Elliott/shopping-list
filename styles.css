@@ -1,7 +1,8 @@
 /* styles.css */
 body {
     font-family: 'Mynerve', sans-serif;
-    background-color: #f4f4f4;
+    background: url('Shopping List Background.png') no-repeat center center fixed;
+    background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
