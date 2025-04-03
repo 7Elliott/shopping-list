@@ -1,39 +1,14 @@
 let shoppingList = null
 const auth = new Auth()
 
-async function loopUntilLoggedIn() {
-    let email = null, password = null
-    while (true) {
-        const loggedIn = await auth.loggedIn()
-        if (loggedIn) {
-            break
-        }
-        if (!email) {
-            email = prompt("email: ")
-        }
-        if (!password) {
-            password = prompt("password: ")
-        }
-        if (email && password) {
-            const { data, error } = await auth.signIn(email, password)
-            if (!error) {
-                break
-            } else {
-                return error
-            }
-        }
-    }
+async function redirectIfNotLoggedIn() {
+    const loggedIn = await auth.loggedIn()
+    if (!loggedIn) window.location.pathname = '/login.html'
 }
 
 // script.js
 document.addEventListener("DOMContentLoaded", async () => {
-    const error = await loopUntilLoggedIn()
-    if (error) {
-        console.log('sign in error', error)
-        alert(`Failed to log in: ${error.message}`)
-        window.location.reload()
-        return
-    }
+    await redirectIfNotLoggedIn()
     shoppingList = new ShoppingList(auth.getClient())
     loadItems();
     document.getElementById("itemInput").addEventListener("keypress", function (event) {
