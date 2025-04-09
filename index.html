@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-      <!-- Primary favicon -->
+  <!-- Primary favicon -->
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -12,32 +13,36 @@
   <!-- Android/Chrome Icons -->
   <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
+  <link rel="manifest" href="site.webmanifest" />
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grocery List</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="utils.js"></script>
-    <script src="user.js"></script>
-    <script src="db.js"></script>
-    <script defer src="script.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grocery List</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="utils.js"></script>
+  <script src="user.js"></script>
+  <script src="db.js"></script>
+  <script defer src="script.js"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Grocery Shopping List</h1>
-      <p id="itemCount">Items: 0</p>
-        <div class="input-section">
-            <input type="text" id="itemInput" placeholder="Add an item...">
-            <button onclick="addItem()"><img src='add.svg' /></button>
-        </div>
-        <ul id="groceryList"></ul>
-        <button id="deleteSelected" onclick="deleteSelected()"><img src='trash.svg' /><span id="deleteSelectedCount"></span></button>
-      <button id="deleteAll" onclick="deleteAll()"><img src='clear.svg' /></button>
-    </div>
- <style>                      @import url('https://fonts.cdnfonts.com/css/mynerve');
-</style>
 
-                
+<body>
+  <div class="container">
+    <h1>Grocery Shopping List</h1>
+    <p id="itemCount">Items: 0</p>
+    <div class="input-section">
+      <input type="text" id="itemInput" placeholder="Add an item...">
+      <button onclick="addItem()"><img src='add.svg' /></button>
+    </div>
+    <ul id="groceryList"></ul>
+    <button id="deleteSelected" onclick="deleteSelected()"><img src='trash.svg' /><span
+        id="deleteSelectedCount"></span></button>
+    <button id="deleteAll" onclick="deleteAll()"><img src='clear.svg' /></button>
+  </div>
+ <style>                      @import url('https://fonts.cdnfonts.com/css/mynerve');
+  </style>
+
+
 </body>
+
 </html>
