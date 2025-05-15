@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             addItem();
         }
     });
+    setupPopupHandlers()
 });
 
 function addItem() {
@@ -97,6 +98,43 @@ function deleteSelected() {
     document.querySelectorAll(".selected").forEach(selectedItem => {
         deleteItem(selectedItem)
     });
+}
+
+function setupPopupHandlers() {
+    const popupMask = document.querySelector(".popup-mask")
+    popupMask.addEventListener('click', () => {
+        showPopup(false)
+    })
+    document.querySelector('.popup .action-buttons > .no').addEventListener('click', doNothingHandler)
+    document.querySelector('.popup .action-buttons > .yes').addEventListener('click', confirmedDeleteHandler)
+    console.log('set up popup handlers')
+}
+
+function doNothingHandler(e) {
+    e.preventDefault()
+    showPopup(false)
+}
+
+function confirmedDeleteHandler(e) {
+    e.preventDefault()
+    deleteAll()
+    showPopup(false)
+}
+
+function showPopup(show) {
+    const popup = document.querySelector(".popup")
+    const popupMask = document.querySelector(".popup-mask")
+    if (show) {
+        popup.classList.add('show')
+        popupMask.classList.add('show')
+    } else {
+        popup.classList.remove('show')
+        popupMask.classList.remove('show')
+    }
+}
+
+function askDeleteAll() {
+    showPopup(true)
 }
 
 function deleteAll() {

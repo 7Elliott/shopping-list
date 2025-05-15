@@ -19,11 +19,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Grocery List</title>
   <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="utils.js"></script>
-  <script src="user.js"></script>
-  <script src="db.js"></script>
-  <script defer src="script.js"></script>
+  <<<<<<< HEAD=======<link rel="stylesheet" href="pixel-corners.css">
+    >>>>>>> 1ae144f (added confirmation popup for delete all)
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="utils.js"></script>
+    <script src="user.js"></script>
+    <script src="db.js"></script>
+    <script defer src="script.js"></script>
 </head>
 
 <body>
@@ -39,8 +41,23 @@
         id="deleteSelectedCount"></span></button>
     <button id="deleteAll" onclick="deleteAll()"><img src='clear.svg' /></button>
   </div>
- <style>                      @import url('https://fonts.cdnfonts.com/css/mynerve');
+  <ul id="groceryList"></ul>
+  <button id="deleteSelected" onclick="deleteSelected()"><img src='trash.svg' /><span
+      id="deleteSelectedCount"></span></button>
+  <button id="deleteAll" onclick="askDeleteAll()"><img src='clear.svg' /></button>
+  </div>
+  <div class="popup dialog pixel-corners">
+    <h4 class="title">Are you sure</h6>
+      <div class="action-buttons">
+        <button class="no">No</button>
+        <button class="yes">Yes</button>
+      </div>
+  </div>
+  <div class="popup-mask"></div>
+  <style>
+    @import url('https://fonts.cdnfonts.com/css/mynerve');
   </style>
+
 
 
 </body>
