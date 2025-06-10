@@ -2,7 +2,7 @@ let shoppingList = null
 const auth = new Auth()
 
 function redirectToLogin() {
-    window.location.pathname = '/shopping-list/login.html'
+    window.location.pathname = `/${SITE_SUBPATH}/login.html`
 }
 
 async function redirectIfNotLoggedIn() {
