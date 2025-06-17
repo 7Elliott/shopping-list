@@ -12,7 +12,7 @@ async function handleLoginSubmit(e) {
         return
     }
     localStorage.setItem("userName", username);
-    window.location.pathname = '/shopping-list'
+    window.location.pathname = SITE_SUBPATH
     return
 }
 
