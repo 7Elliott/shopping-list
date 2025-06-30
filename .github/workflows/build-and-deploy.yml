@@ -6,10 +6,10 @@ on:
       - 15-github-action-does-not-have-the-permission-to-push-to-gh-pages
 
 jobs:
-  permissions:
-    contents: write
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
