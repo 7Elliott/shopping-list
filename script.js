@@ -95,7 +95,7 @@ function deleteItem(li) {
 
 // ✅ Updated function to delete selected items based on click selection instead of checkboxes
 function deleteSelected() {
-    document.querySelectorAll(".selected").forEach(selectedItem => {
+    document.querySelectorAll("#groceryList .selected").forEach(selectedItem => {
         deleteItem(selectedItem)
     });
 }
@@ -189,7 +189,7 @@ function updateItemCount() {
 function updateButtonsVisibility() {
     const deleteSelectedBtn = document.getElementById("deleteSelected");
     const deleteAllBtn = document.getElementById("deleteAll");
-    const selectedCount = document.querySelectorAll(".selected").length;
+    const selectedCount = document.querySelectorAll("#groceryList .selected").length;
     const totalItems = document.querySelectorAll("#groceryList li").length;
 
     // Show or hide "Delete Selected" button

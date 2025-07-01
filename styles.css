@@ -9,15 +9,51 @@
 
 body {
     font-family: 'Mynerve', 'Graffiti', sans-serif;
-    background: url('Shopping List Background.png') no-repeat center center fixed;
-    background-size: cover;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
     overflow: hidden;
-    /* Prevents scrolling on the entire page */
+}
+
+body.login-page {
+    background: url('Shopping List Background.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.pages {
+    display: flex;
+    width: 200vw;
+    height: 100vh;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+
+.pages::-webkit-scrollbar {
+    display: none;
+}
+
+.page {
+    flex: none;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+    scroll-snap-align: start;
+}
+
+.page-shopping {
+    background: url('Shopping List Background.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.page-tasks {
+    background: url('DailyTaskBackground.png') no-repeat center center fixed;
+    background-size: cover;
 }
 
 .container {
@@ -136,43 +172,53 @@ li:hover {
 }
 
 #deleteSelected,
-#deleteAll {
+#deleteTaskSelected,
+#deleteAll,
+#deleteTaskAll {
     margin-top: 10px;
     width: 100%;
     background: #d9534f;
 }
-
-#deleteSelected:hover {
+#deleteSelected:hover,
+#deleteTaskSelected:hover {
     background: #c9302c;
 }
 
-#deleteAll {
+#deleteAll,
+#deleteTaskAll {
     background: #b52b27;
 }
 
 #deleteAll,
+#deleteTaskAll,
 #deleteSelected,
-#deleteSelected>span {
+#deleteTaskSelected,
+#deleteSelected>span,
+#deleteTaskSelected>span {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
-#deleteSelected>span {
+#deleteSelected>span,
+#deleteTaskSelected>span {
     line-height: 24px;
     vertical-align: middle;
     margin-left: 4px;
 }
 
 #deleteAll>img,
+#deleteTaskAll>img,
 #deleteSelected>img,
-#deleteSelected>span {
+#deleteTaskSelected>img,
+#deleteSelected>span,
+#deleteTaskSelected>span {
     height: 24px;
     max-width: 100%;
     display: inline-block;
 }
 
-#deleteAll:hover {
+#deleteAll:hover,
+#deleteTaskAll:hover {
     background: #a02622;
 }
 
