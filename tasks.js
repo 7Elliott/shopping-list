@@ -3,7 +3,6 @@ let dailyTaskList = null
 document.addEventListener("DOMContentLoaded", async () => {
     await redirectIfNotLoggedIn()
     dailyTaskList = new DailyTaskList(auth.getClient())
-    await dailyTaskList.initListId()
     loadTasks()
     document.getElementById("taskInput").addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
@@ -132,9 +131,7 @@ async function loadTasks() {
     const savedItems = await dailyTaskList.fetch()
     const list = document.getElementById("taskList")
 
-    savedItems
-        .sort(({ created_at: a }, { created_at: b }) => new Date(b) - new Date(a))
-        .forEach(({ id, name, created_at, user_name }) => {
+    savedItems.sort(({ created_at: a }, { created_at: b }) => b > a).forEach(({ id, name, created_at, user_name }) => {
         const li = makeTaskElement(id, name, created_at, user_name)
         list.appendChild(li)
     })
