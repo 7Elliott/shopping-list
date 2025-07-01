@@ -9,6 +9,7 @@
 
 body {
     font-family: 'Mynerve', 'Graffiti', sans-serif;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -36,6 +37,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
     background-size: cover;
     background-position: center;
     scroll-snap-align: start;
