@@ -174,18 +174,22 @@ li:hover {
 #deleteSelected,
 #deleteTaskSelected,
 #deleteAll,
-#deleteTaskAll {
+#deleteTaskAll,
+.delete-selected,
+.delete-all {
     margin-top: 10px;
     width: 100%;
     background: #d9534f;
 }
 #deleteSelected:hover,
-#deleteTaskSelected:hover {
+#deleteTaskSelected:hover,
+.delete-selected:hover {
     background: #c9302c;
 }
 
 #deleteAll,
-#deleteTaskAll {
+#deleteTaskAll,
+.delete-all {
     background: #b52b27;
 }
 
@@ -193,14 +197,17 @@ li:hover {
 #deleteTaskAll,
 #deleteSelected,
 #deleteTaskSelected,
-#deleteSelected>span,
-#deleteTaskSelected>span {
+.delete-all,
+.delete-selected,
+.delete-all>span,
+.delete-selected>span {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 #deleteSelected>span,
-#deleteTaskSelected>span {
+#deleteTaskSelected>span,
+.delete-selected>span {
     line-height: 24px;
     vertical-align: middle;
     margin-left: 4px;
@@ -210,15 +217,20 @@ li:hover {
 #deleteTaskAll>img,
 #deleteSelected>img,
 #deleteTaskSelected>img,
+.delete-all>img,
+.delete-selected>img,
 #deleteSelected>span,
-#deleteTaskSelected>span {
+#deleteTaskSelected>span,
+.delete-selected>span,
+.delete-all>span {
     height: 24px;
     max-width: 100%;
     display: inline-block;
 }
 
 #deleteAll:hover,
-#deleteTaskAll:hover {
+#deleteTaskAll:hover,
+.delete-all:hover {
     background: #a02622;
 }
 
