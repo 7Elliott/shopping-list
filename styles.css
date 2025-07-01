@@ -51,6 +51,11 @@ body.login-page {
     background-size: cover;
 }
 
+.page-tasks {
+    background: url('DailyTaskBackground.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
 
 .container {
     background: #ffffff;

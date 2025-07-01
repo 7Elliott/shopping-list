@@ -188,7 +188,11 @@ function updateUIOnItemDelete(item, page) {
 function createPageElement(list, index) {
     const template = document.getElementById('listPageTemplate')
     const section = template.content.firstElementChild.cloneNode(true)
-    section.classList.add('page-shopping')
+    if (index === 0) {
+        section.classList.add('page-shopping')
+    } else {
+        section.classList.add('page-tasks')
+    }
     section.dataset.index = index
     section.dataset.listId = list.id
     section.querySelector('h1').textContent = list.name
