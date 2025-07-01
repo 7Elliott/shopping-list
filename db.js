@@ -1,13 +1,20 @@
 const { createClient } = supabase
 
 class ShoppingList {
-    databaseName = "shopping_list"
+    databaseName = "items"
     constructor(client) {
         this.client = client
+        this.listId = null
+    }
+
+    setListId(id) {
+        this.listId = id
     }
 
     async fetch() {
-        let { data, error } = await this.client.from(this.databaseName).select()
+        let { data, error } = await this.client.from(this.databaseName)
+            .select()
+            .eq('list_id', this.listId)
         if (!error) {
             console.log('data: ', data)
             return data
@@ -20,17 +27,19 @@ class ShoppingList {
     async addItem(name, userName) {
         return await this.client.from(this.databaseName).insert({
             name,
-            user_name: userName
+            user_name: userName,
+            list_id: this.listId
         }).select()
     }
 
     async deleteItem(id) {
-        return await this.client.from(this.databaseName).delete().eq('id', id)
+        return await this.client.from(this.databaseName)
+            .delete()
+            .eq('id', id)
+            .eq('list_id', this.listId)
     }
-}
-class DailyTaskList extends ShoppingList {
-    constructor(client) {
-        super(client)
-        this.databaseName = "daily_tasks"
+
+    async fetchLists() {
+        return await this.client.from('lists').select()
     }
 }
