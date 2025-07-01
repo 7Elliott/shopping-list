@@ -56,6 +56,7 @@ body.login-page {
     background-size: cover;
 }
 
+
 .container {
     background: #ffffff;
     padding: 20px;
@@ -171,54 +172,42 @@ li:hover {
     margin-top: 10px;
 }
 
-#deleteSelected,
-#deleteTaskSelected,
-#deleteAll,
-#deleteTaskAll {
+.delete-selected,
+.delete-all {
     margin-top: 10px;
     width: 100%;
     background: #d9534f;
 }
-#deleteSelected:hover,
-#deleteTaskSelected:hover {
+.delete-selected:hover {
     background: #c9302c;
 }
 
-#deleteAll,
-#deleteTaskAll {
+.delete-all {
     background: #b52b27;
 }
 
-#deleteAll,
-#deleteTaskAll,
-#deleteSelected,
-#deleteTaskSelected,
-#deleteSelected>span,
-#deleteTaskSelected>span {
+.delete-all,
+.delete-selected,
+.delete-selected>span {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-#deleteSelected>span,
-#deleteTaskSelected>span {
+.delete-selected>span {
     line-height: 24px;
     vertical-align: middle;
     margin-left: 4px;
 }
 
-#deleteAll>img,
-#deleteTaskAll>img,
-#deleteSelected>img,
-#deleteTaskSelected>img,
-#deleteSelected>span,
-#deleteTaskSelected>span {
+.delete-all>img,
+.delete-selected>img,
+.delete-selected>span {
     height: 24px;
     max-width: 100%;
     display: inline-block;
 }
 
-#deleteAll:hover,
-#deleteTaskAll:hover {
+.delete-all:hover {
     background: #a02622;
 }
 
@@ -226,8 +215,7 @@ li:hover {
     display: none;
 }
 
-#itemInput+button,
-#taskInput+button,
+.item-input+button,
 .deleteButton {
     display: flex;
     align-items: center;
@@ -238,8 +226,7 @@ li:hover {
     background-color: #777;
 }
 
-#itemInput+button>img,
-#taskInput+button>img,
+.item-input+button>img,
 .deleteButton>img {
     height: 12px;
     max-width: 100%;

@@ -1,5 +1,10 @@
+// script.js - dynamic shopping lists
 let shoppingList = null
 const auth = new Auth()
+let lists = []
+let currentIndex = 0
+let pagesContainer = null
+let popupTargetPage = null
 
 function redirectToLogin() {
     window.location.pathname = `/${SITE_SUBPATH}/login.html`
@@ -10,104 +15,23 @@ async function redirectIfNotLoggedIn() {
     if (!loggedIn) redirectToLogin()
 }
 
-// script.js
-document.addEventListener("DOMContentLoaded", async () => {
-    await redirectIfNotLoggedIn()
-    shoppingList = new ShoppingList(auth.getClient())
-    loadItems();
-    document.getElementById("itemInput").addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            addItem();
-        }
-    });
-    setupPopupHandlers()
-});
-
-function addItem() {
-    const input = document.getElementById("itemInput");
-    const itemText = input.value.trim();
-    if (itemText === "") return;
-
-    let userName = localStorage.getItem("userName");
-    if (!userName) {
-        // login page also sets username. redirect back to login
-        redirectToLogin();
-    }
-
-    const list = document.getElementById("groceryList");
-    shoppingList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
-        if (error) {
-            alert("Could not insert item. Please try again?")
-        } else {
-            const li = makeItemElement(id, name, created_at, userName)
-            list.prepend(li); // Adds new item to the top of the list
-            onItemChangesCompleted()
-            input.value = "";
-        }
-    })
+// return the list ID associated with a page. List IDs are UUID strings so we
+// don't parse them as integers
+function getListId(page) {
+    return page.dataset.listId
 }
 
-// ✅ New function to format timestamps as "today", "1 day ago", "2 days ago", "1 week ago"
-function formatRelativeDate(date) {
-    const now = new Date();
-    const oneDay = 24 * 60 * 60 * 1000;
-    const diffDays = Math.floor((now - date) / oneDay);
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "1 day ago";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return "long long ago";
-}
-
-// ✅ New function to toggle selection when clicking an item
-function toggleSelect(elem) {
-    elem.classList.toggle("selected");
-    updateButtonsVisibility(); // ✅ Update button visibility when selecting items
-}
-
-function onItemChangesCompleted() {
-    updateItemCount(); // ✅ Update counter after items have changed
-    updateButtonsVisibility(); // ✅ Update button visibility
-}
-
-function updateUIOnItemDelete(item) {
-    item.classList.add("slide-out"); // ✅ Apply CSS class for transition
-    setTimeout(() => {
-        item.remove()
-        onItemChangesCompleted()
-    }, 300)
-}
-
-function onDeleteButtonPressed(button) {
-    const li = button.parentElement
-    deleteItem(li)
-}
-
-function deleteItem(li) {
-    shoppingList.deleteItem(li.dataset.id).then(({ error }) => {
-        if (error) {
-            alert("failed to delete item")
-            return
-        }
-        updateUIOnItemDelete(li)
-    })
-}
-
-// ✅ Updated function to delete selected items based on click selection instead of checkboxes
-function deleteSelected() {
-    document.querySelectorAll("#groceryList .selected").forEach(selectedItem => {
-        deleteItem(selectedItem)
-    });
+function getCurrentPage() {
+    return pagesContainer.children[currentIndex]
 }
 
 function setupPopupHandlers() {
-    const popupMask = document.querySelector(".popup-mask")
+    const popupMask = document.querySelector('.popup-mask')
     popupMask.addEventListener('click', () => {
         showPopup(false)
     })
     document.querySelector('.popup .action-buttons > .no').addEventListener('click', doNothingHandler)
     document.querySelector('.popup .action-buttons > .yes').addEventListener('click', confirmedDeleteHandler)
-    console.log('set up popup handlers')
 }
 
 function doNothingHandler(e) {
@@ -117,13 +41,15 @@ function doNothingHandler(e) {
 
 function confirmedDeleteHandler(e) {
     e.preventDefault()
-    deleteAll()
+    if (popupTargetPage) {
+        deleteAll(popupTargetPage)
+    }
     showPopup(false)
 }
 
 function showPopup(show) {
-    const popup = document.querySelector(".popup")
-    const popupMask = document.querySelector(".popup-mask")
+    const popup = document.querySelector('.popup')
+    const popupMask = document.querySelector('.popup-mask')
     if (show) {
         popup.classList.add('show')
         popupMask.classList.add('show')
@@ -133,73 +59,192 @@ function showPopup(show) {
     }
 }
 
-function askDeleteAll() {
+function askDeleteAll(page) {
+    popupTargetPage = page
     showPopup(true)
 }
 
-function deleteAll() {
-    document.querySelectorAll("#groceryList li").forEach(li => {
-        deleteItem(li)
-    });
-}
-
-function saveItems() {
-    const items = [];
-    document.querySelectorAll("#groceryList li span").forEach(li => {
-        items.push(li.innerText);
-    });
-    localStorage.setItem("groceryItems", JSON.stringify(items));
+function formatRelativeDate(date) {
+    const now = new Date()
+    const oneDay = 24 * 60 * 60 * 1000
+    const diffDays = Math.floor((now - date) / oneDay)
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return '1 day ago'
+    if (diffDays < 7) return `${diffDays} days ago`
+    return 'long long ago'
 }
 
 function makeItemElement(id, name, created_at, userName) {
-    const li = document.createElement("li");
-    const timestamp = formatRelativeDate(Date.parse(created_at));
-
+    const li = document.createElement('li')
+    const timestamp = formatRelativeDate(Date.parse(created_at))
     li.onclick = () => toggleSelect(li)
-
-    // ✅ Updated to move username under timestamp & style it small
     li.innerHTML = `<span style='flex-grow:1'> ${name} </span>
                     <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
                         <small style='color: gray; font-size: 16px;'>${timestamp}</small>
                         <small style='color: gray; font-size: 12px; font-style: italic;'>Added by ${userName}</small>
                     </div>
-                    <button class="deleteButton" onclick='onDeleteButtonPressed(this)'><img src='delete.svg' /></button>`;
-    li.setAttribute('data-id', id)
+                    <button class="deleteButton"><img src='delete.svg' /></button>`
+    li.querySelector('.deleteButton').addEventListener('click', () => onDeleteButtonPressed(li))
+    li.dataset.id = id
     return li
 }
 
-async function loadItems() {
-    const savedItems = await shoppingList.fetch()
-    const list = document.getElementById("groceryList");
+function toggleSelect(elem) {
+    elem.classList.toggle('selected')
+    updateButtonsVisibility(getCurrentPage())
+}
 
+function onItemChangesCompleted(page) {
+    updateItemCount(page)
+    updateButtonsVisibility(page)
+}
+
+function updateItemCount(page) {
+    const count = page.querySelectorAll('ul li').length
+    page.querySelector('.item-count').textContent = `Items: ${count}`
+}
+
+function updateButtonsVisibility(page) {
+    const deleteSelectedBtn = page.querySelector('.delete-selected')
+    const deleteAllBtn = page.querySelector('.delete-all')
+    const selectedCount = page.querySelectorAll('ul .selected').length
+    const totalItems = page.querySelectorAll('ul li').length
+    if (selectedCount > 0) {
+        deleteSelectedBtn.style.display = 'flex'
+        deleteSelectedBtn.querySelector('span').textContent = `(${selectedCount})`
+    } else {
+        deleteSelectedBtn.style.display = 'none'
+    }
+    deleteAllBtn.style.display = totalItems > 0 ? 'block' : 'none'
+}
+
+async function loadItems(page) {
+    shoppingList.setListId(getListId(page))
+    const savedItems = await shoppingList.fetch()
+    const list = page.querySelector('ul')
+    list.innerHTML = ''
     savedItems.sort(({ created_at: a }, { created_at: b }) => b > a).forEach(({ id, name, created_at, user_name }) => {
         const li = makeItemElement(id, name, created_at, user_name)
-        list.appendChild(li);
-    });
-    onItemChangesCompleted()
+        list.appendChild(li)
+    })
+    page.dataset.loaded = 'true'
+    onItemChangesCompleted(page)
 }
 
-// ✅ New function to update the item count dynamically
-function updateItemCount() {
-    const count = document.querySelectorAll("#groceryList li").length;
-    document.getElementById("itemCount").textContent = `Items: ${count}`;
-}
-
-// ✅ New function to update button visibility
-function updateButtonsVisibility() {
-    const deleteSelectedBtn = document.getElementById("deleteSelected");
-    const deleteAllBtn = document.getElementById("deleteAll");
-    const selectedCount = document.querySelectorAll("#groceryList .selected").length;
-    const totalItems = document.querySelectorAll("#groceryList li").length;
-
-    // Show or hide "Delete Selected" button
-    if (selectedCount > 0) {
-        deleteSelectedBtn.style.display = "flex";
-        deleteSelectedBtn.querySelector('#deleteSelectedCount').textContent = ` (${selectedCount})`
-    } else {
-        deleteSelectedBtn.style.display = "none";
+function addItem(page) {
+    const input = page.querySelector('.item-input')
+    const itemText = input.value.trim()
+    if (itemText === '') return
+    let userName = localStorage.getItem('userName')
+    if (!userName) {
+        redirectToLogin()
+        return
     }
-
-    // Show or hide "Delete All" button
-    deleteAllBtn.style.display = totalItems > 0 ? "block" : "none";
+    shoppingList.setListId(getListId(page))
+    shoppingList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
+        if (error) {
+            alert('Could not insert item. Please try again?')
+        } else {
+            const li = makeItemElement(id, name, created_at, userName)
+            page.querySelector('ul').prepend(li)
+            onItemChangesCompleted(page)
+            input.value = ''
+        }
+    })
 }
+
+function deleteItem(li, page) {
+    shoppingList.setListId(getListId(page))
+    shoppingList.deleteItem(li.dataset.id).then(({ error }) => {
+        if (error) {
+            alert('failed to delete item')
+            return
+        }
+        updateUIOnItemDelete(li, page)
+    })
+}
+
+function onDeleteButtonPressed(li) {
+    const page = li.closest('.page')
+    deleteItem(li, page)
+}
+
+function deleteSelected(page) {
+    page.querySelectorAll('ul .selected').forEach(selectedItem => {
+        deleteItem(selectedItem, page)
+    })
+}
+
+function deleteAll(page) {
+    page.querySelectorAll('ul li').forEach(li => deleteItem(li, page))
+}
+
+function updateUIOnItemDelete(item, page) {
+    item.classList.add('slide-out')
+    setTimeout(() => {
+        item.remove()
+        onItemChangesCompleted(page)
+    }, 300)
+}
+
+function createPageElement(list, index) {
+    const template = document.getElementById('listPageTemplate')
+    const section = template.content.firstElementChild.cloneNode(true)
+    if (index === 0) {
+        section.classList.add('page-shopping')
+    } else {
+        section.classList.add('page-tasks')
+    }
+    section.dataset.index = index
+    section.dataset.listId = list.id
+    section.querySelector('h1').textContent = list.name
+
+    const input = section.querySelector('.item-input')
+    const addBtn = section.querySelector('.add-item')
+    addBtn.addEventListener('click', () => addItem(section))
+    input.addEventListener('keypress', e => {
+        if (e.key === 'Enter') addItem(section)
+    })
+    section.querySelector('.delete-selected').addEventListener('click', () => deleteSelected(section))
+    section.querySelector('.delete-all').addEventListener('click', () => askDeleteAll(section))
+
+    return section
+}
+
+function setCurrentList(index) {
+    currentIndex = index
+    const page = pagesContainer.children[index]
+    if (!page) return
+    if (!page.dataset.loaded) {
+        loadItems(page)
+    } else {
+        updateButtonsVisibility(page)
+    }
+}
+
+function handleScroll() {
+    const index = Math.round(pagesContainer.scrollLeft / window.innerWidth)
+    if (index !== currentIndex) {
+        setCurrentList(index)
+    }
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await redirectIfNotLoggedIn()
+    shoppingList = new ShoppingList(auth.getClient())
+    pagesContainer = document.getElementById('pagesContainer')
+    setupPopupHandlers()
+    const { data, error } = await shoppingList.fetchLists()
+    if (error) {
+        alert('Failed to load lists')
+        return
+    }
+    lists = data || []
+    pagesContainer.style.width = `${lists.length * 100}vw`
+    lists.forEach((list, idx) => {
+        const page = createPageElement(list, idx)
+        pagesContainer.appendChild(page)
+    })
+    setCurrentList(0)
+    pagesContainer.addEventListener('scroll', handleScroll)
+})
