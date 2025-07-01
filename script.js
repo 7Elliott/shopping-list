@@ -4,7 +4,7 @@ const listsMap = {}
 let currentDeleteList = null
 
 function redirectToLogin() {
-    window.location.pathname = `/${SITE_SUBPATH}/login.html`
+    window.location.pathname = `${SITE_SUBPATH}/login.html`
 }
 
 async function redirectIfNotLoggedIn() {
@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function createListSection(container, list) {
     const section = document.createElement('section')
-    section.className = 'page'
+    const cls = list.name === 'daily_task' ? 'page-tasks' : 'page-shopping'
+    section.className = `page ${cls}`
     section.dataset.listId = list.id
     section.innerHTML = `<div class="container">
             <h1>${formatListTitle(list.name)}</h1>
