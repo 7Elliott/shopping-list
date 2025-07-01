@@ -1,56 +1,51 @@
 // Supabase client is provided globally via <script> include
 
-class ShoppingList {
-    databaseName = "items"
-    listName = "shopping_list"
-    listId = null
+class ItemsDB {
     constructor(client) {
         this.client = client
     }
 
-    async initListId() {
-        if (this.listId) return
-        const { data, error } = await this.client.from('lists').select('id').eq('name', this.listName).single()
+    async getLists() {
+        const { data, error } = await this.client.from('lists').select()
         if (error) {
-            console.log('error fetching list id: ', error)
+            console.log('error fetching lists: ', error)
             throw error
         }
-        this.listId = data.id
+        return data
     }
 
-    async fetch() {
-        await this.initListId()
-        let { data, error } = await this.client
-            .from(this.databaseName)
+    async fetchItems(listId) {
+        const { data, error } = await this.client
+            .from('items')
             .select()
-            .eq('list_id', this.listId)
+            .eq('list_id', listId)
             .is('deleted_at', null)
             .order('created_at', { ascending: false })
-        if (!error) {
-            console.log('data: ', data)
-            return data
-        } else {
-            console.log('error: ', data)
+        if (error) {
+            console.log('error fetching items: ', error)
             throw error
         }
+        return data
     }
 
-    async addItem(name, userName) {
-        await this.initListId()
-        return await this.client.from(this.databaseName).insert({
+    async addItem(listId, name, userName) {
+        const { data, error } = await this.client.from('items').insert({
             name,
             user_name: userName,
-            list_id: this.listId
+            list_id: listId
         }).select()
+        if (error) {
+            console.log('error adding item: ', error)
+            throw error
+        }
+        return data[0]
     }
 
     async deleteItem(id) {
-        return await this.client.from(this.databaseName).delete().eq('id', id)
-    }
-}
-class DailyTaskList extends ShoppingList {
-    constructor(client) {
-        super(client)
-        this.listName = "daily_task"
+        const { error } = await this.client.from('items').delete().eq('id', id)
+        if (error) {
+            console.log('error deleting item: ', error)
+            throw error
+        }
     }
 }

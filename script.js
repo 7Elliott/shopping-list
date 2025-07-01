@@ -1,5 +1,7 @@
-let shoppingList = null
 const auth = new Auth()
+let db = null
+const listsMap = {}
+let currentDeleteList = null
 
 function redirectToLogin() {
     window.location.pathname = `/${SITE_SUBPATH}/login.html`
@@ -10,105 +12,108 @@ async function redirectIfNotLoggedIn() {
     if (!loggedIn) redirectToLogin()
 }
 
-// script.js
-document.addEventListener("DOMContentLoaded", async () => {
+function formatListTitle(name) {
+    return name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
     await redirectIfNotLoggedIn()
-    shoppingList = new ShoppingList(auth.getClient())
-    await shoppingList.initListId()
-    loadItems();
-    document.getElementById("itemInput").addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-            addItem();
-        }
-    });
+    db = new ItemsDB(auth.getClient())
+    const lists = await db.getLists()
+    const pages = document.getElementById('listsContainer')
+    pages.style.width = `${lists.length * 100}vw`
+
+    for (const list of lists) {
+        createListSection(pages, list)
+        await loadItems(list.id)
+    }
     setupPopupHandlers()
-});
+})
 
-function addItem() {
-    const input = document.getElementById("itemInput");
-    const itemText = input.value.trim();
-    if (itemText === "") return;
+function createListSection(container, list) {
+    const section = document.createElement('section')
+    section.className = 'page'
+    section.dataset.listId = list.id
+    section.innerHTML = `<div class="container">
+            <h1>${formatListTitle(list.name)}</h1>
+            <p class="item-count">Items: 0</p>
+            <div class="input-section">
+                <input type="text" class="item-input" placeholder="Add an item...">
+                <button class="add-btn"><img src='add.svg' /></button>
+            </div>
+            <ul id="${list.id}" class="item-list"></ul>
+            <button class="delete-selected"><img src='trash.svg' /><span class="selected-count"></span></button>
+            <button class="delete-all"><img src='clear.svg' /></button>
+        </div>`
+    container.appendChild(section)
 
-    let userName = localStorage.getItem("userName");
-    if (!userName) {
-        // login page also sets username. redirect back to login
-        redirectToLogin();
+    const listObj = {
+        id: list.id,
+        name: list.name,
+        listEl: section.querySelector('ul'),
+        input: section.querySelector('.item-input'),
+        countEl: section.querySelector('.item-count'),
+        deleteSelectedBtn: section.querySelector('.delete-selected'),
+        deleteAllBtn: section.querySelector('.delete-all')
     }
 
-    const list = document.getElementById("groceryList");
-    shoppingList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
-        if (error) {
-            alert("Could not insert item. Please try again?")
-        } else {
-            const li = makeItemElement(id, name, created_at, userName)
-            list.prepend(li); // Adds new item to the top of the list
-            onItemChangesCompleted()
-            input.value = "";
-        }
-    })
+    listsMap[list.id] = listObj
+
+    listObj.input.addEventListener('keypress', e => { if (e.key === 'Enter') addItem(list.id) })
+    section.querySelector('.add-btn').addEventListener('click', () => addItem(list.id))
+    listObj.deleteSelectedBtn.addEventListener('click', () => deleteSelected(list.id))
+    listObj.deleteAllBtn.addEventListener('click', () => askDeleteAll(list.id))
 }
 
-// ✅ New function to format timestamps as "today", "1 day ago", "2 days ago", "1 week ago"
 function formatRelativeDate(date) {
-    const now = new Date();
-    const oneDay = 24 * 60 * 60 * 1000;
-    const diffDays = Math.floor((now - date) / oneDay);
-
-    if (diffDays === 0) return "Today";
-    if (diffDays === 1) return "1 day ago";
-    if (diffDays < 7) return `${diffDays} days ago`;
-    return "long long ago";
+    const now = new Date()
+    const oneDay = 24 * 60 * 60 * 1000
+    const diffDays = Math.floor((now - date) / oneDay)
+    if (diffDays === 0) return 'Today'
+    if (diffDays === 1) return '1 day ago'
+    if (diffDays < 7) return `${diffDays} days ago`
+    return 'long long ago'
 }
 
-// ✅ New function to toggle selection when clicking an item
 function toggleSelect(elem) {
-    elem.classList.toggle("selected");
-    updateButtonsVisibility(); // ✅ Update button visibility when selecting items
+    elem.classList.toggle('selected')
+    const listId = elem.dataset.listId
+    updateButtonsVisibility(listId)
 }
 
-function onItemChangesCompleted() {
-    updateItemCount(); // ✅ Update counter after items have changed
-    updateButtonsVisibility(); // ✅ Update button visibility
+function onItemChangesCompleted(listId) {
+    updateItemCount(listId)
+    updateButtonsVisibility(listId)
 }
 
 function updateUIOnItemDelete(item) {
-    item.classList.add("slide-out"); // ✅ Apply CSS class for transition
+    const listId = item.dataset.listId
+    item.classList.add('slide-out')
     setTimeout(() => {
         item.remove()
-        onItemChangesCompleted()
+        onItemChangesCompleted(listId)
     }, 300)
 }
 
-function onDeleteButtonPressed(button) {
-    const li = button.parentElement
+function onDeleteButtonPressed(li) {
     deleteItem(li)
 }
 
 function deleteItem(li) {
-    shoppingList.deleteItem(li.dataset.id).then(({ error }) => {
-        if (error) {
-            alert("failed to delete item")
-            return
-        }
+    db.deleteItem(li.dataset.id).then(() => {
         updateUIOnItemDelete(li)
-    })
+    }).catch(() => alert('failed to delete item'))
 }
 
-// ✅ Updated function to delete selected items based on click selection instead of checkboxes
-function deleteSelected() {
-    document.querySelectorAll("#groceryList .selected").forEach(selectedItem => {
-        deleteItem(selectedItem)
-    });
+function deleteSelected(listId) {
+    listsMap[listId].listEl.querySelectorAll('.selected').forEach(deleteItem)
 }
 
 function setupPopupHandlers() {
-    const popupMask = document.querySelector(".popup-mask")
-    popupMask.addEventListener('click', () => {
-        showPopup(false)
-    })
+    const popupMask = document.querySelector('.popup-mask')
+    popupMask.addEventListener('click', () => { showPopup(false) })
     document.querySelector('.popup .action-buttons > .no').addEventListener('click', doNothingHandler)
     document.querySelector('.popup .action-buttons > .yes').addEventListener('click', confirmedDeleteHandler)
-    console.log('set up popup handlers')
 }
 
 function doNothingHandler(e) {
@@ -118,13 +123,13 @@ function doNothingHandler(e) {
 
 function confirmedDeleteHandler(e) {
     e.preventDefault()
-    deleteAll()
+    deleteAll(currentDeleteList)
     showPopup(false)
 }
 
 function showPopup(show) {
-    const popup = document.querySelector(".popup")
-    const popupMask = document.querySelector(".popup-mask")
+    const popup = document.querySelector('.popup')
+    const popupMask = document.querySelector('.popup-mask')
     if (show) {
         popup.classList.add('show')
         popupMask.classList.add('show')
@@ -134,75 +139,76 @@ function showPopup(show) {
     }
 }
 
-function askDeleteAll() {
+function askDeleteAll(listId) {
+    currentDeleteList = listId
     showPopup(true)
 }
 
-function deleteAll() {
-    document.querySelectorAll("#groceryList li").forEach(li => {
-        deleteItem(li)
-    });
+function deleteAll(listId) {
+    listsMap[listId].listEl.querySelectorAll('li').forEach(deleteItem)
 }
 
-function saveItems() {
-    const items = [];
-    document.querySelectorAll("#groceryList li span").forEach(li => {
-        items.push(li.innerText);
-    });
-    localStorage.setItem("groceryItems", JSON.stringify(items));
-}
-
-function makeItemElement(id, name, created_at, userName) {
-    const li = document.createElement("li");
-    const timestamp = formatRelativeDate(Date.parse(created_at));
-
+function makeItemElement(id, name, created_at, userName, listId) {
+    const li = document.createElement('li')
+    const timestamp = formatRelativeDate(new Date(created_at))
     li.onclick = () => toggleSelect(li)
-
-    // ✅ Updated to move username under timestamp & style it small
     li.innerHTML = `<span style='flex-grow:1'> ${name} </span>
                     <div style='display: flex; flex-direction: column; gap: 5px; align-items: flex-end; margin-right: 15px;'>
                         <small style='color: gray; font-size: 16px;'>${timestamp}</small>
                         <small style='color: gray; font-size: 12px; font-style: italic;'>Added by ${userName}</small>
                     </div>
-                    <button class="deleteButton" onclick='onDeleteButtonPressed(this)'><img src='delete.svg' /></button>`;
+                    <button class="deleteButton"><img src='delete.svg' /></button>`
     li.setAttribute('data-id', id)
+    li.setAttribute('data-list-id', listId)
+    li.querySelector('.deleteButton').addEventListener('click', e => { e.stopPropagation(); onDeleteButtonPressed(li) })
     return li
 }
 
-async function loadItems() {
-    const savedItems = await shoppingList.fetch()
-    const list = document.getElementById("groceryList");
-
+async function loadItems(listId) {
+    const savedItems = await db.fetchItems(listId)
+    const listObj = listsMap[listId]
     savedItems
-        .sort(({ created_at: a }, { created_at: b }) => new Date(b) - new Date(a))
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .forEach(({ id, name, created_at, user_name }) => {
-        const li = makeItemElement(id, name, created_at, user_name)
-        list.appendChild(li);
-    });
-    onItemChangesCompleted()
+            const li = makeItemElement(id, name, created_at, user_name, listId)
+            listObj.listEl.appendChild(li)
+        })
+    onItemChangesCompleted(listId)
 }
 
-// ✅ New function to update the item count dynamically
-function updateItemCount() {
-    const count = document.querySelectorAll("#groceryList li").length;
-    document.getElementById("itemCount").textContent = `Items: ${count}`;
+function updateItemCount(listId) {
+    const listObj = listsMap[listId]
+    const count = listObj.listEl.querySelectorAll('li').length
+    listObj.countEl.textContent = `Items: ${count}`
 }
 
-// ✅ New function to update button visibility
-function updateButtonsVisibility() {
-    const deleteSelectedBtn = document.getElementById("deleteSelected");
-    const deleteAllBtn = document.getElementById("deleteAll");
-    const selectedCount = document.querySelectorAll("#groceryList .selected").length;
-    const totalItems = document.querySelectorAll("#groceryList li").length;
-
-    // Show or hide "Delete Selected" button
+function updateButtonsVisibility(listId) {
+    const listObj = listsMap[listId]
+    const selectedCount = listObj.listEl.querySelectorAll('.selected').length
+    const totalItems = listObj.listEl.querySelectorAll('li').length
     if (selectedCount > 0) {
-        deleteSelectedBtn.style.display = "flex";
-        deleteSelectedBtn.querySelector('#deleteSelectedCount').textContent = ` (${selectedCount})`
+        listObj.deleteSelectedBtn.style.display = 'flex'
+        listObj.deleteSelectedBtn.querySelector('.selected-count').textContent = `(${selectedCount})`
     } else {
-        deleteSelectedBtn.style.display = "none";
+        listObj.deleteSelectedBtn.style.display = 'none'
     }
+    listObj.deleteAllBtn.style.display = totalItems > 0 ? 'block' : 'none'
+}
 
-    // Show or hide "Delete All" button
-    deleteAllBtn.style.display = totalItems > 0 ? "block" : "none";
+function addItem(listId) {
+    const listObj = listsMap[listId]
+    const input = listObj.input
+    const itemText = input.value.trim()
+    if (itemText === '') return
+    let userName = localStorage.getItem('userName')
+    if (!userName) {
+        redirectToLogin()
+        return
+    }
+    db.addItem(listId, itemText, userName).then(item => {
+        const li = makeItemElement(item.id, item.name, item.created_at, userName, listId)
+        listObj.listEl.prepend(li)
+        onItemChangesCompleted(listId)
+        input.value = ''
+    }).catch(() => alert('Could not insert item. Please try again?'))
 }
