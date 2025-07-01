@@ -9,13 +9,17 @@
 
 body {
     font-family: 'Mynerve', 'Graffiti', sans-serif;
-
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
     overflow: hidden;
+}
+
+body.login-page {
+    background: url('Shopping List Background.png') no-repeat center center fixed;
+    background-size: cover;
 }
 
 .pages {
@@ -37,7 +41,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-
     background-size: cover;
     background-position: center;
     scroll-snap-align: start;
@@ -169,43 +172,53 @@ li:hover {
 }
 
 #deleteSelected,
-#deleteAll {
+#deleteTaskSelected,
+#deleteAll,
+#deleteTaskAll {
     margin-top: 10px;
     width: 100%;
     background: #d9534f;
 }
-
-#deleteSelected:hover {
+#deleteSelected:hover,
+#deleteTaskSelected:hover {
     background: #c9302c;
 }
 
-#deleteAll {
+#deleteAll,
+#deleteTaskAll {
     background: #b52b27;
 }
 
 #deleteAll,
+#deleteTaskAll,
 #deleteSelected,
-#deleteSelected>span {
+#deleteTaskSelected,
+#deleteSelected>span,
+#deleteTaskSelected>span {
     display: flex;
     align-items: center;
     justify-content: center;
 }
-
-#deleteSelected>span {
+#deleteSelected>span,
+#deleteTaskSelected>span {
     line-height: 24px;
     vertical-align: middle;
     margin-left: 4px;
 }
 
 #deleteAll>img,
+#deleteTaskAll>img,
 #deleteSelected>img,
-#deleteSelected>span {
+#deleteTaskSelected>img,
+#deleteSelected>span,
+#deleteTaskSelected>span {
     height: 24px;
     max-width: 100%;
     display: inline-block;
 }
 
-#deleteAll:hover {
+#deleteAll:hover,
+#deleteTaskAll:hover {
     background: #a02622;
 }
 
