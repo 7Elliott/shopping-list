@@ -9,13 +9,18 @@
 
 body {
     font-family: 'Mynerve', 'Graffiti', sans-serif;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
     overflow: hidden;
 }
 
 .pages {
     display: flex;
-    width: 100vw;
+    width: 200vw;
     height: 100vh;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
@@ -32,6 +37,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+
     background-size: cover;
     background-position: center;
     scroll-snap-align: start;
