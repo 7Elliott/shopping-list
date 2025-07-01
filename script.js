@@ -14,6 +14,7 @@ async function redirectIfNotLoggedIn() {
 document.addEventListener("DOMContentLoaded", async () => {
     await redirectIfNotLoggedIn()
     shoppingList = new ShoppingList(auth.getClient())
+    await shoppingList.initListId()
     loadItems();
     document.getElementById("itemInput").addEventListener("keypress", function (event) {
         if (event.key === "Enter") {

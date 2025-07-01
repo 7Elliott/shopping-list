@@ -1,13 +1,26 @@
 const { createClient } = supabase
 
 class ShoppingList {
-    databaseName = "shopping_list"
+    databaseName = "items"
+    listName = "shopping_list"
+    listId = null
     constructor(client) {
         this.client = client
     }
 
+    async initListId() {
+        if (this.listId) return
+        const { data, error } = await this.client.from('lists').select('id').eq('name', this.listName).single()
+        if (error) {
+            console.log('error fetching list id: ', error)
+            throw error
+        }
+        this.listId = data.id
+    }
+
     async fetch() {
-        let { data, error } = await this.client.from(this.databaseName).select()
+        await this.initListId()
+        let { data, error } = await this.client.from(this.databaseName).select().eq('list_id', this.listId)
         if (!error) {
             console.log('data: ', data)
             return data
@@ -18,9 +31,11 @@ class ShoppingList {
     }
 
     async addItem(name, userName) {
+        await this.initListId()
         return await this.client.from(this.databaseName).insert({
             name,
-            user_name: userName
+            user_name: userName,
+            list_id: this.listId
         }).select()
     }
 
@@ -31,6 +46,6 @@ class ShoppingList {
 class DailyTaskList extends ShoppingList {
     constructor(client) {
         super(client)
-        this.databaseName = "daily_tasks"
+        this.listName = "daily_task"
     }
 }

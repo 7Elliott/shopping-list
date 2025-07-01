@@ -3,6 +3,7 @@ let dailyTaskList = null
 document.addEventListener("DOMContentLoaded", async () => {
     await redirectIfNotLoggedIn()
     dailyTaskList = new DailyTaskList(auth.getClient())
+    await dailyTaskList.initListId()
     loadTasks()
     document.getElementById("taskInput").addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
