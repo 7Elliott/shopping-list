@@ -68,9 +68,9 @@ function formatRelativeDate(date) {
     const now = new Date()
     const oneDay = 24 * 60 * 60 * 1000
     const diffDays = Math.floor((now - date) / oneDay)
-    if (diffDays === 0) return 'Today'
+    if (diffDays <= 0) return 'Today'
     if (diffDays === 1) return '1 day ago'
-    if (diffDays < 7) return `${diffDays} days ago`
+    if (diffDays <= 7) return `${diffDays} days ago`
     return 'long long ago'
 }
 
