@@ -1,36 +1,54 @@
 const { createClient } = supabase
 
-class ShoppingList {
-    databaseName = "shopping_list"
-    constructor(client) {
+class ItemList {
+    tableName = "items"
+    constructor(client, listName) {
         this.client = client
+        this.listName = listName
+        this.listId = null
     }
 
-    async fetch() {
-        let { data, error } = await this.client.from(this.databaseName).select()
-        if (!error) {
-            console.log('data: ', data)
-            return data
-        } else {
-            console.log('error: ', data)
-            throw error
+    async init() {
+        const { data, error } = await this.client.from('lists').select('id').eq('name', this.listName).single()
+        if (error) throw error
+        this.listId = data.id
+    }
+
+    async ensureListId() {
+        if (!this.listId) {
+            await this.init()
         }
     }
 
+    async fetch() {
+        await this.ensureListId()
+        const { data, error } = await this.client.from(this.tableName).select().eq('list_id', this.listId)
+        if (error) throw error
+        return data
+    }
+
     async addItem(name, userName) {
-        return await this.client.from(this.databaseName).insert({
+        await this.ensureListId()
+        return await this.client.from(this.tableName).insert({
             name,
-            user_name: userName
+            user_name: userName,
+            list_id: this.listId
         }).select()
     }
 
     async deleteItem(id) {
-        return await this.client.from(this.databaseName).delete().eq('id', id)
+        return await this.client.from(this.tableName).delete().eq('id', id)
     }
 }
-class DailyTaskList extends ShoppingList {
+
+class ShoppingList extends ItemList {
     constructor(client) {
-        super(client)
-        this.databaseName = "daily_tasks"
+        super(client, 'shopping_list')
+    }
+}
+
+class DailyTaskList extends ItemList {
+    constructor(client) {
+        super(client, 'daily_task')
     }
 }
