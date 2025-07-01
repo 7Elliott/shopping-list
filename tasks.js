@@ -23,10 +23,11 @@ function addTask() {
     }
 
     const list = document.getElementById("taskList")
-    dailyTaskList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
-        if (error) {
+    dailyTaskList.addItem(itemText, userName).then(({ data, error }) => {
+        if (error || !data) {
             alert("Could not insert task. Please try again?")
         } else {
+            const [{ id, name, created_at }] = data
             const li = makeTaskElement(id, name, created_at, userName)
             list.prepend(li)
             onTaskChangesCompleted()

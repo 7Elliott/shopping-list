@@ -35,16 +35,17 @@ function addItem() {
     }
 
     const list = document.getElementById("groceryList");
-    shoppingList.addItem(itemText, userName).then(({ data: [{ id, name, created_at }], error }) => {
-        if (error) {
-            alert("Could not insert item. Please try again?")
+    shoppingList.addItem(itemText, userName).then(({ data, error }) => {
+        if (error || !data) {
+            alert("Could not insert item. Please try again?");
         } else {
-            const li = makeItemElement(id, name, created_at, userName)
+            const [{ id, name, created_at }] = data;
+            const li = makeItemElement(id, name, created_at, userName);
             list.prepend(li); // Adds new item to the top of the list
-            onItemChangesCompleted()
+            onItemChangesCompleted();
             input.value = "";
         }
-    })
+    });
 }
 
 // ✅ New function to format timestamps as "today", "1 day ago", "2 days ago", "1 week ago"
