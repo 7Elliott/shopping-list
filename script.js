@@ -15,8 +15,10 @@ async function redirectIfNotLoggedIn() {
     if (!loggedIn) redirectToLogin()
 }
 
+// return the list ID associated with a page. List IDs are UUID strings so we
+// don't parse them as integers
 function getListId(page) {
-    return parseInt(page.dataset.listId, 10)
+    return page.dataset.listId
 }
 
 function getCurrentPage() {
