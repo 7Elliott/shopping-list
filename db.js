@@ -1,4 +1,4 @@
-const { createClient } = supabase
+// Supabase client is provided globally via <script> include
 
 class ShoppingList {
     databaseName = "items"
@@ -20,7 +20,12 @@ class ShoppingList {
 
     async fetch() {
         await this.initListId()
-        let { data, error } = await this.client.from(this.databaseName).select().eq('list_id', this.listId)
+        let { data, error } = await this.client
+            .from(this.databaseName)
+            .select()
+            .eq('list_id', this.listId)
+            .is('deleted_at', null)
+            .order('created_at', { ascending: false })
         if (!error) {
             console.log('data: ', data)
             return data

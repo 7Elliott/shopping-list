@@ -173,7 +173,9 @@ async function loadItems() {
     const savedItems = await shoppingList.fetch()
     const list = document.getElementById("groceryList");
 
-    savedItems.sort(({ created_at: a }, { created_at: b }) => b > a).forEach(({ id, name, created_at, user_name }) => {
+    savedItems
+        .sort(({ created_at: a }, { created_at: b }) => new Date(b) - new Date(a))
+        .forEach(({ id, name, created_at, user_name }) => {
         const li = makeItemElement(id, name, created_at, user_name)
         list.appendChild(li);
     });

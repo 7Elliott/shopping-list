@@ -1,6 +1,7 @@
 # Shopping List
 
 A simple grocery list web app built with vanilla HTML, CSS and JavaScript. It uses [Supabase](https://supabase.com/) for user authentication and to store items in a shared table.
+The database schema now uses a single **items** table that references a **lists** table via `list_id`.
 
 ## Features
 - Login using Supabase credentials
