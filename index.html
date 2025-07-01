@@ -26,38 +26,25 @@
   <script src="user.js"></script>
   <script src="db.js"></script>
   <script defer src="script.js"></script>
-  <script defer src="tasks.js"></script>
 </head>
 
 <body>
-  <div class="pages">
-    <section class="page page-shopping">
+  <div class="pages" id="pagesContainer"></div>
+  <template id="listPageTemplate">
+    <section class="page">
       <div class="container">
-        <h1>Grocery Shopping List</h1>
-        <p id="itemCount">Items: 0</p>
+        <h1 class="list-title"></h1>
+        <p class="item-count">Items: 0</p>
         <div class="input-section">
-          <input type="text" id="itemInput" placeholder="Add an item...">
-          <button onclick="addItem()"><img src='add.svg' /></button>
+          <input type="text" class="item-input" placeholder="Add an item...">
+          <button class="add-item"><img src='add.svg' /></button>
         </div>
-        <ul id="groceryList"></ul>
-        <button id="deleteSelected" onclick="deleteSelected()"><img src='trash.svg' /><span id="deleteSelectedCount"></span></button>
-        <button id="deleteAll" onclick="askDeleteAll()"><img src='clear.svg' /></button>
+        <ul class="item-list"></ul>
+        <button class="delete-selected"><img src='trash.svg' /><span></span></button>
+        <button class="delete-all"><img src='clear.svg' /></button>
       </div>
     </section>
-    <section class="page page-tasks">
-      <div class="container">
-        <h1>Daily Tasks</h1>
-        <p id="taskItemCount">Items: 0</p>
-        <div class="input-section">
-          <input type="text" id="taskInput" placeholder="Add a task...">
-          <button onclick="addTask()"><img src='add.svg' /></button>
-        </div>
-        <ul id="taskList"></ul>
-        <button id="deleteTaskSelected" onclick="deleteTaskSelected()"><img src='trash.svg' /><span id="deleteTaskSelectedCount"></span></button>
-        <button id="deleteTaskAll" onclick="askDeleteTaskAll()"><img src='clear.svg' /></button>
-      </div>
-    </section>
-  </div>
+  </template>
   <div class="popup dialog pixel-corners">
     <h4 class="title">Are you sure</h4>
     <div class="action-buttons">
@@ -66,14 +53,6 @@
     </div>
   </div>
   <div class="popup-mask"></div>
-  <div class="popup dialog pixel-corners task-popup">
-    <h4 class="title">Are you sure</h4>
-    <div class="action-buttons">
-      <button class="no">No</button>
-      <button class="yes">Yes</button>
-    </div>
-  </div>
-  <div class="task-popup-mask"></div>
   <style>
     @import url('https://fonts.cdnfonts.com/css/mynerve');
   </style>
