@@ -28,3 +28,9 @@ class ShoppingList {
         return await this.client.from(this.databaseName).delete().eq('id', id)
     }
 }
+class DailyTaskList extends ShoppingList {
+    constructor(client) {
+        super(client)
+        this.databaseName = "daily_tasks"
+    }
+}

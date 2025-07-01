@@ -9,15 +9,42 @@
 
 body {
     font-family: 'Mynerve', 'Graffiti', sans-serif;
-    background: url('Shopping List Background.png') no-repeat center center fixed;
-    background-size: cover;
+    margin: 0;
+    overflow: hidden;
+}
+
+.pages {
+    display: flex;
+    width: 200vw;
+    height: 100vh;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+}
+
+.pages::-webkit-scrollbar {
+    display: none;
+}
+
+.page {
+    flex: none;
+    width: 100vw;
+    height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden;
-    /* Prevents scrolling on the entire page */
+    background-size: cover;
+    background-position: center;
+    scroll-snap-align: start;
+}
+
+.page-shopping {
+    background: url('Shopping List Background.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.page-tasks {
+    background: url('DailyTaskBackground.png') no-repeat center center fixed;
+    background-size: cover;
 }
 
 .container {
