@@ -6,8 +6,15 @@ let currentIndex = 0
 let pagesContainer = null
 let popupTargetPage = null
 
+// overscroll constants and state
+const ADD_LIST_THRESHOLD = 80
+const DAMPING_DISTANCE = 120
+let maxOverscroll = 0
+let overscrollTimeoutId = null
+let addListPage = null
+
 function redirectToLogin() {
-    window.location.pathname = `/${SITE_SUBPATH}/login.html`
+    window.location.pathname = `${SITE_SUBPATH}/login.html`
 }
 
 async function redirectIfNotLoggedIn() {
@@ -211,6 +218,11 @@ function createPageElement(list, index) {
     return section
 }
 
+function createAddListPage() {
+    const template = document.getElementById('addListTemplate')
+    return template.content.firstElementChild.cloneNode(true)
+}
+
 function setCurrentList(index) {
     currentIndex = index
     const page = pagesContainer.children[index]
@@ -229,6 +241,39 @@ function handleScroll() {
     }
 }
 
+function handleOverscroll() {
+    const lastPageOffset = (lists.length - 1) * window.innerWidth
+    const overshoot = pagesContainer.scrollLeft - lastPageOffset
+
+    if (overshoot > 0) {
+        maxOverscroll = Math.max(maxOverscroll, overshoot)
+        const damping = 1 + overshoot / DAMPING_DISTANCE
+        addListPage.style.transform = `translateX(${-overshoot / damping}px)`
+    } else {
+        addListPage.style.transform = ''
+        maxOverscroll = 0
+    }
+
+    clearTimeout(overscrollTimeoutId)
+    overscrollTimeoutId = setTimeout(onOverscrollEnd, 120)
+}
+
+function onOverscrollEnd() {
+    if (maxOverscroll >= ADD_LIST_THRESHOLD) {
+        showCreateListPrompt()
+    }
+    addListPage.style.transition = 'transform 0.3s'
+    addListPage.style.transform = ''
+    setTimeout(() => {
+        addListPage.style.transition = ''
+    }, 300)
+    maxOverscroll = 0
+}
+
+function showCreateListPrompt() {
+    alert('Create new list')
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     await redirectIfNotLoggedIn()
     shoppingList = new ShoppingList(auth.getClient())
@@ -240,11 +285,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return
     }
     lists = data || []
-    pagesContainer.style.width = `${lists.length * 100}vw`
+    pagesContainer.style.width = `${(lists.length + 1) * 100}vw`
     lists.forEach((list, idx) => {
         const page = createPageElement(list, idx)
         pagesContainer.appendChild(page)
     })
+    addListPage = createAddListPage()
+    pagesContainer.appendChild(addListPage)
     setCurrentList(0)
     pagesContainer.addEventListener('scroll', handleScroll)
+    pagesContainer.addEventListener('scroll', handleOverscroll)
 })
