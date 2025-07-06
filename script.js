@@ -15,8 +15,15 @@ let addListPage = null
 
 function setupAddListPromptHandlers() {
     const mask = document.querySelector('.add-list-mask')
+    const addBtn = document.querySelector('.confirm-add-list')
     if (mask) {
         mask.addEventListener('click', () => showCreateListPrompt(false))
+    }
+    if (addBtn) {
+        addBtn.addEventListener('click', () => {
+            // list creation logic will be implemented later
+            showCreateListPrompt(false)
+        })
     }
 }
 

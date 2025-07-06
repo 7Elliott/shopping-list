@@ -304,6 +304,16 @@ li:hover {
     display: none;
 }
 
+.add-list-container input {
+    margin-top: 10px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.add-list-container button {
+    margin-top: 10px;
+}
+
 .add-list-container.show {
     display: block;
 }
