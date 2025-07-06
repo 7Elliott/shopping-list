@@ -7,7 +7,7 @@ let pagesContainer = null
 let popupTargetPage = null
 
 // overscroll constants and state
-const ADD_LIST_THRESHOLD = 80
+const ADD_LIST_THRESHOLD = 40
 const DAMPING_DISTANCE = 120
 let maxOverscroll = 0
 let overscrollTimeoutId = null
