@@ -13,6 +13,13 @@ let maxOverscroll = 0
 let overscrollTimeoutId = null
 let addListPage = null
 
+function setupAddListPromptHandlers() {
+    const mask = document.querySelector('.add-list-mask')
+    if (mask) {
+        mask.addEventListener('click', () => showCreateListPrompt(false))
+    }
+}
+
 function redirectToLogin() {
     window.location.pathname = `${SITE_SUBPATH}/login.html`
 }
@@ -260,7 +267,7 @@ function handleOverscroll() {
 
 function onOverscrollEnd() {
     if (maxOverscroll >= ADD_LIST_THRESHOLD) {
-        showCreateListPrompt()
+        showCreateListPrompt(true)
     }
     addListPage.style.transition = 'transform 0.3s'
     addListPage.style.transform = ''
@@ -270,8 +277,16 @@ function onOverscrollEnd() {
     maxOverscroll = 0
 }
 
-function showCreateListPrompt() {
-    alert('Create new list')
+function showCreateListPrompt(show) {
+    const dialog = document.querySelector('.add-list-container')
+    const mask = document.querySelector('.add-list-mask')
+    if (show) {
+        dialog.classList.add('show')
+        mask.classList.add('show')
+    } else {
+        dialog.classList.remove('show')
+        mask.classList.remove('show')
+    }
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -279,6 +294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     shoppingList = new ShoppingList(auth.getClient())
     pagesContainer = document.getElementById('pagesContainer')
     setupPopupHandlers()
+    setupAddListPromptHandlers()
     const { data, error } = await shoppingList.fetchLists()
     if (error) {
         alert('Failed to load lists')
