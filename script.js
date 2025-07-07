@@ -20,9 +20,23 @@ function setupAddListPromptHandlers() {
         mask.addEventListener('click', () => showCreateListPrompt(false))
     }
     if (addBtn) {
-        addBtn.addEventListener('click', () => {
-            // list creation logic will be implemented later
+        addBtn.addEventListener('click', async () => {
+            const input = document.querySelector('.new-list-name')
+            const name = input.value.trim()
+            if (!name) return
+            const { data, error } = await shoppingList.addList(name)
+            if (error) {
+                alert('Could not create list. Please try again?')
+                return
+            }
+            const [newList] = data
+            lists.push(newList)
+            pagesContainer.style.width = `${(lists.length + 1) * 100}vw`
+            const page = createPageElement(newList, lists.length - 1)
+            pagesContainer.insertBefore(page, addListPage)
+            input.value = ''
             showCreateListPrompt(false)
+            setCurrentList(lists.length - 1)
         })
     }
 }
