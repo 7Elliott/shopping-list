@@ -28,6 +28,7 @@ body.login-page {
     height: 100vh;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
+    position: relative;
 }
 
 .pages::-webkit-scrollbar {
@@ -44,6 +45,11 @@ body.login-page {
     background-size: cover;
     background-position: center;
     scroll-snap-align: start;
+}
+
+.add-list-page {
+    scroll-snap-align: none;
+    background: #f0f0f0;
 }
 
 .page-shopping {
@@ -284,5 +290,44 @@ li:hover {
 }
 
 .popup-mask.show {
+    display: block;
+}
+
+.add-list-container {
+    z-index: 102;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background: white;
+    display: none;
+}
+
+.add-list-container input {
+    margin-top: 10px;
+    padding: 5px;
+    font-size: 16px;
+}
+
+.add-list-container button {
+    margin-top: 10px;
+}
+
+.add-list-container.show {
+    display: block;
+}
+
+.add-list-mask {
+    z-index: 101;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: none;
+}
+
+.add-list-mask.show {
     display: block;
 }

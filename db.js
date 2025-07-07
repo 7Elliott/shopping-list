@@ -42,4 +42,8 @@ class ShoppingList {
     async fetchLists() {
         return await this.client.from('lists').select()
     }
+
+    async addList(name) {
+        return await this.client.from('lists').insert({ name }).select()
+    }
 }
